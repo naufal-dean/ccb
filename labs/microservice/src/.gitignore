@@ -1,0 +1,9 @@
+# virtual env
+/venv/
+/activate.bat
+
+# pycache folder
+__pycache__/
+
+# env file
+.env
