@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-service
+spec:
+  selector:
+    matchLabels:
+      app: client-service
+  template:
+    metadata:
+      labels:
+        app: client-service
+    spec:
+      serviceAccountName: default
+      containers:
+        - name: client
+          image: client-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: 5000
+          env:
+          - name: SERVER_SERVICE_URL
+            value: "http://server-service:8080"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-service
+spec:
+  type: NodePort
+  selector:
+    app: client-service
+  ports:
+  - name: http
+    port: 8081
+    targetPort: 5000

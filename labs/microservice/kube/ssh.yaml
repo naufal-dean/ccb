@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ssh-service
+spec:
+  selector:
+    matchLabels:
+      app: ssh-service
+  template:
+    metadata:
+      labels:
+        app: ssh-service
+    spec:
+      serviceAccountName: default
+      containers:
+        - name: ssh
+          image: client-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: 5000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
