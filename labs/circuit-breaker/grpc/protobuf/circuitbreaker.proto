@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package model;
+
+message Request {
+    string url = 1;
+    // TODO: add request payload
+}
+
+message UserList {
+    repeated User list = 1;
+}
+
+import "google/protobuf/Empty.proto";
+
+service Users {
+    rpc Register(User) returns (google.protobuf.Empty) {}
+    rpc List(google.protobuf.Empty) returns (UserList) {}
+}
