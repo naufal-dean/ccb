@@ -17,7 +17,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/golang/protobuf/ptypes/wrappers"
 
-	pb "github.com/naufal-dean/labs/circuit-breaker/grpc/test"
+	pb "github.com/naufal-dean/ccb/labs/circuit-breaker/grpc/protobuf"
 )
 
 var (
