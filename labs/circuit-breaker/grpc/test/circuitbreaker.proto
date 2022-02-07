@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+option go_package = "github.com/naufal-dean/labs/circuit-breaker/grpc/test";
+
+package test;
+
+message Request {
+    string url = 1;
+    // TODO: add request payload
+}
+
+message User {
+    string name = 1;
+    string email = 2;
+    int32 age = 3;
+}
+
+message UserList {
+    repeated User list = 1;
+}
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+service Users {
+    rpc Register(User) returns (google.protobuf.Empty) {}
+    rpc List(google.protobuf.Empty) returns (UserList) {}
+    rpc Echo(google.protobuf.BytesValue) returns (google.protobuf.BytesValue) {}
+}
