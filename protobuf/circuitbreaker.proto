@@ -4,20 +4,24 @@ option go_package = "github.com/naufal-dean/ccb/protobuf";
 
 package protobuf;
 
+message ListString {
+    repeated string values = 1;
+}
+
 message RequestInput {
     string method = 1;
     string url = 2;
-    map<string, string> header = 3;
+    map<string, ListString> header = 3;
 }
 
 message GetInput {
     string url = 1;
-    map<string, string> header = 2;
+    map<string, ListString> header = 2;
 }
 
 message PostInput {
     string url = 1;
-    map<string, string> header = 2;
+    map<string, ListString> header = 2;
     bytes body = 3;
 }
 
@@ -27,7 +31,7 @@ message Response {
     string proto = 3;
     int32 proto_major = 4;
     int32 proto_minor = 5;
-    map<string, string> header = 6;
+    map<string, ListString> header = 6;
     bytes body = 7;
     int64 content_length = 8;
 }
