@@ -3,24 +3,26 @@ package main
 import (
 	"flag"
 	"fmt"
+	"google.golang.org/grpc"
 	"log"
 	"net"
 
-	"google.golang.org/grpc"
+	"github.com/naufal-dean/ccb/httpserver"
+)
 
-	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/golang/protobuf/ptypes/wrappers"
-
-	pb "github.com/naufal-dean/ccb/protobuf"
+var (
+	port = flag.Int("port", 50051, "The server port")
 )
 
 func main() {
 	flag.Parse()
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", *port))
+	addr := fmt.Sprintf("localhost:%d", *port)
+	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
+	log.Printf("Listening to: %s\n", addr)
 
 	var opts []grpc.ServerOption
 
@@ -38,10 +40,10 @@ func main() {
 	// 	opts = []grpc.ServerOption{grpc.Creds(creds)}
 	// }
 
-	s := usersServer{}
+	s := httpserver.HttpServer{}
 
 	grpcServer := grpc.NewServer(opts...)
-	pb.RegisterUsersServer(grpcServer, &s)
+	s.Register(grpcServer)
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve gRPC: %v", err)
 	}
