@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -23,13 +22,17 @@ func main() {
 
 	c := pb.NewHttpClient(conn)
 
-	userList, err := c.Get(context.Background(), &pb.GetInput{})
+	response, err := c.Get(context.Background(), &pb.GetInput{
+		Url:    "https://api.sampleapis.com/coffee/hot",
+		Header: nil,
+	})
 	if err != nil {
 		log.Fatalf("Failed to request to server: %v", err)
 	}
 
-	data, _ := json.Marshal(userList)
-	log.Printf("%s\n", data)
+	//data, _ := json.Marshal(response)
+	//log.Printf("%s\n", data)
+	log.Println(string(response.Body))
 
 	//for {
 	//	reader := bufio.NewReader(os.Stdin)
