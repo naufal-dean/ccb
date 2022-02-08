@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/naufal-dean/ccb/db/repository"
 	"github.com/naufal-dean/ccb/httpserver"
 	"google.golang.org/grpc"
 	"log"
@@ -22,11 +23,12 @@ func initApp(a *App, port int, dbpath string) {
 }
 
 func initAppDb(a *App, dbpath string) {
-	db, err := sql.Open("sqlite3", "./foo.db")
+	var err error
+	a.Db, err = sql.Open("sqlite3", dbpath)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
+	log.Printf("Connection to db '%s' established...", dbpath)
 }
 
 func initAppServer(a *App) {
@@ -66,6 +68,11 @@ func appExec(port int, dbpath string) {
 
 	// Init app
 	initApp(a, port, dbpath)
+	defer a.Db.Close()
+
+	// TEST INSERT
+	// TODO: remove
+	repository.TestInsert(a.Db)
 
 	// Serve
 	log.Printf("Listening to: %s\n", addr)

@@ -2,4 +2,4 @@
 
 source ./protobuf/protoc.sh
 
-go run main.go
+go run main.go --dbpath ccb.db
