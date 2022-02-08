@@ -19,3 +19,6 @@
 
 # IDE folder
 .idea/
+
+# SQLite db
+*.db
