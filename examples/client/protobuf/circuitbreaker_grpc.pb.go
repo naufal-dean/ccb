@@ -21,6 +21,8 @@ type HttpClient interface {
 	Request(ctx context.Context, in *RequestInput, opts ...grpc.CallOption) (*Response, error)
 	Get(ctx context.Context, in *GetInput, opts ...grpc.CallOption) (*Response, error)
 	Post(ctx context.Context, in *PostInput, opts ...grpc.CallOption) (*Response, error)
+	Put(ctx context.Context, in *PutInput, opts ...grpc.CallOption) (*Response, error)
+	Delete(ctx context.Context, in *DeleteInput, opts ...grpc.CallOption) (*Response, error)
 }
 
 type httpClient struct {
@@ -58,6 +60,24 @@ func (c *httpClient) Post(ctx context.Context, in *PostInput, opts ...grpc.CallO
 	return out, nil
 }
 
+func (c *httpClient) Put(ctx context.Context, in *PutInput, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, "/protobuf.Http/Put", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *httpClient) Delete(ctx context.Context, in *DeleteInput, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, "/protobuf.Http/Delete", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // HttpServer is the server API for Http service.
 // All implementations must embed UnimplementedHttpServer
 // for forward compatibility
@@ -65,6 +85,8 @@ type HttpServer interface {
 	Request(context.Context, *RequestInput) (*Response, error)
 	Get(context.Context, *GetInput) (*Response, error)
 	Post(context.Context, *PostInput) (*Response, error)
+	Put(context.Context, *PutInput) (*Response, error)
+	Delete(context.Context, *DeleteInput) (*Response, error)
 	mustEmbedUnimplementedHttpServer()
 }
 
@@ -80,6 +102,12 @@ func (UnimplementedHttpServer) Get(context.Context, *GetInput) (*Response, error
 }
 func (UnimplementedHttpServer) Post(context.Context, *PostInput) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Post not implemented")
+}
+func (UnimplementedHttpServer) Put(context.Context, *PutInput) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Put not implemented")
+}
+func (UnimplementedHttpServer) Delete(context.Context, *DeleteInput) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedHttpServer) mustEmbedUnimplementedHttpServer() {}
 
@@ -148,6 +176,42 @@ func _Http_Post_Handler(srv interface{}, ctx context.Context, dec func(interface
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Http_Put_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PutInput)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HttpServer).Put(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protobuf.Http/Put",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HttpServer).Put(ctx, req.(*PutInput))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Http_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteInput)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HttpServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protobuf.Http/Delete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HttpServer).Delete(ctx, req.(*DeleteInput))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Http_ServiceDesc is the grpc.ServiceDesc for Http service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -166,6 +230,14 @@ var Http_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Post",
 			Handler:    _Http_Post_Handler,
+		},
+		{
+			MethodName: "Put",
+			Handler:    _Http_Put_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _Http_Delete_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

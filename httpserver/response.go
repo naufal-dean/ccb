@@ -7,15 +7,21 @@ import (
 	pb "github.com/naufal-dean/ccb/protobuf"
 )
 
-func readBody(res *http.Response) ([]byte, error) {
+func convertHeader(header http.Header) map[string]string {
+	// Get first value
+	res := make(map[string]string)
+	for k, _ := range header {
+		res[k] = header.Get(k)
+	}
+	return res
+}
+
+func convertResponse(res *http.Response) (*pb.Response, error) {
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
-	return body, nil
-}
 
-func convertResponse(res *http.Response, body []byte) *pb.Response {
 	return &pb.Response{
 		Status:        res.Status,
 		StatusCode:    int32(res.StatusCode),
@@ -25,13 +31,5 @@ func convertResponse(res *http.Response, body []byte) *pb.Response {
 		Header:        convertHeader(res.Header),
 		Body:          body,
 		ContentLength: res.ContentLength,
-	}
-}
-
-func convertHeader(header map[string][]string) map[string]*pb.ListString {
-	res := make(map[string]*pb.ListString)
-	for k, v := range header {
-		res[k] = &pb.ListString{Values: v}
-	}
-	return res
+	}, nil
 }

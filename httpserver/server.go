@@ -20,28 +20,59 @@ func (s *HttpServer) Register(sr grpc.ServiceRegistrar) {
 func (s *HttpServer) Request(ctx context.Context, input *pb.RequestInput) (*pb.Response, error) {
 	log.Println("Received request: Request")
 
-	return &pb.Response{}, nil
+	res, err := doRequest(input.Method, input.Url, input.Body, input.Header)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	return convertResponse(res)
 }
 
 func (s *HttpServer) Get(ctx context.Context, input *pb.GetInput) (*pb.Response, error) {
 	log.Println("Received request: Get")
 
-	response, err := http.Get(input.Url)
+	res, err := doRequest(http.MethodGet, input.Url, nil, input.Header)
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
+	defer res.Body.Close()
 
-	body, err := readBody(response)
-	if err != nil {
-		return nil, err
-	}
-
-	return convertResponse(response, body), nil
+	return convertResponse(res)
 }
 
 func (s *HttpServer) Post(ctx context.Context, input *pb.PostInput) (*pb.Response, error) {
 	log.Println("Received request: Post")
 
-	return &pb.Response{}, nil
+	res, err := doRequest(http.MethodPost, input.Url, input.Body, input.Header)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	return convertResponse(res)
+}
+
+func (s *HttpServer) Put(ctx context.Context, input *pb.PutInput) (*pb.Response, error) {
+	log.Println("Received request: Put")
+
+	res, err := doRequest(http.MethodPut, input.Url, input.Body, input.Header)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	return convertResponse(res)
+}
+
+func (s *HttpServer) Delete(ctx context.Context, input *pb.DeleteInput) (*pb.Response, error) {
+	log.Println("Received request: Delete")
+
+	res, err := doRequest(http.MethodDelete, input.Url, nil, input.Header)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	return convertResponse(res)
 }
