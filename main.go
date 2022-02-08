@@ -1,29 +1,36 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/naufal-dean/ccb/httpserver"
 	"google.golang.org/grpc"
 	"log"
 	"net"
-
-	"github.com/naufal-dean/ccb/httpserver"
 )
 
-var (
-	port = flag.Int("port", 50051, "The server port")
-)
+type App struct {
+	Server *grpc.Server
+	Db     *sql.DB
+}
 
-func main() {
-	flag.Parse()
+func initApp(a *App, port int, dbpath string) {
+	initAppDb(a, dbpath)
+	initAppServer(a)
+}
 
-	addr := fmt.Sprintf("localhost:%d", *port)
-	lis, err := net.Listen("tcp", addr)
+func initAppDb(a *App, dbpath string) {
+	db, err := sql.Open("sqlite3", "./foo.db")
 	if err != nil {
-		log.Fatalf("Failed to listen: %v", err)
+		log.Fatal(err)
 	}
-	log.Printf("Listening to: %s\n", addr)
+	defer db.Close()
+}
 
+func initAppServer(a *App) {
+	// Create grpc server
 	var opts []grpc.ServerOption
 
 	// if *tls {
@@ -40,11 +47,38 @@ func main() {
 	// 	opts = []grpc.ServerOption{grpc.Creds(creds)}
 	// }
 
-	s := httpserver.HttpServer{}
+	a.Server = grpc.NewServer(opts...)
 
-	grpcServer := grpc.NewServer(opts...)
-	s.Register(grpcServer)
-	if err := grpcServer.Serve(lis); err != nil {
+	// Register HttpServer
+	s := httpserver.HttpServer{}
+	s.Register(a.Server)
+}
+
+func appExec(port int, dbpath string) {
+	var a = &App{}
+
+	// Init listener
+	addr := fmt.Sprintf("localhost:%d", port)
+	lis, err := net.Listen("tcp", addr)
+	if err != nil {
+		log.Fatalf("Failed to listen: %v", err)
+	}
+
+	// Init app
+	initApp(a, port, dbpath)
+
+	// Serve
+	log.Printf("Listening to: %s\n", addr)
+	if err := a.Server.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve gRPC: %v", err)
 	}
+}
+
+func main() {
+	port := flag.Int("port", 50051, "The server port")
+	dbpath := flag.String("dbpath", "", "The server sqlite3 db path")
+
+	flag.Parse()
+
+	appExec(*port, *dbpath)
 }
