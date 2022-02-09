@@ -249,8 +249,8 @@ var Http_ServiceDesc = grpc.ServiceDesc{
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ListenerClient interface {
-	OpenCircuits(ctx context.Context, in *Endpoints, opts ...grpc.CallOption) (*empty.Empty, error)
-	CloseCircuits(ctx context.Context, in *Endpoints, opts ...grpc.CallOption) (*empty.Empty, error)
+	OpenCircuits(ctx context.Context, in *ServiceEndpoints, opts ...grpc.CallOption) (*empty.Empty, error)
+	CloseCircuits(ctx context.Context, in *ServiceEndpoints, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
 type listenerClient struct {
@@ -261,7 +261,7 @@ func NewListenerClient(cc grpc.ClientConnInterface) ListenerClient {
 	return &listenerClient{cc}
 }
 
-func (c *listenerClient) OpenCircuits(ctx context.Context, in *Endpoints, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (c *listenerClient) OpenCircuits(ctx context.Context, in *ServiceEndpoints, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
 	err := c.cc.Invoke(ctx, "/protobuf.Listener/OpenCircuits", in, out, opts...)
 	if err != nil {
@@ -270,7 +270,7 @@ func (c *listenerClient) OpenCircuits(ctx context.Context, in *Endpoints, opts .
 	return out, nil
 }
 
-func (c *listenerClient) CloseCircuits(ctx context.Context, in *Endpoints, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (c *listenerClient) CloseCircuits(ctx context.Context, in *ServiceEndpoints, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
 	err := c.cc.Invoke(ctx, "/protobuf.Listener/CloseCircuits", in, out, opts...)
 	if err != nil {
@@ -283,8 +283,8 @@ func (c *listenerClient) CloseCircuits(ctx context.Context, in *Endpoints, opts 
 // All implementations must embed UnimplementedListenerServer
 // for forward compatibility
 type ListenerServer interface {
-	OpenCircuits(context.Context, *Endpoints) (*empty.Empty, error)
-	CloseCircuits(context.Context, *Endpoints) (*empty.Empty, error)
+	OpenCircuits(context.Context, *ServiceEndpoints) (*empty.Empty, error)
+	CloseCircuits(context.Context, *ServiceEndpoints) (*empty.Empty, error)
 	mustEmbedUnimplementedListenerServer()
 }
 
@@ -292,10 +292,10 @@ type ListenerServer interface {
 type UnimplementedListenerServer struct {
 }
 
-func (UnimplementedListenerServer) OpenCircuits(context.Context, *Endpoints) (*empty.Empty, error) {
+func (UnimplementedListenerServer) OpenCircuits(context.Context, *ServiceEndpoints) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OpenCircuits not implemented")
 }
-func (UnimplementedListenerServer) CloseCircuits(context.Context, *Endpoints) (*empty.Empty, error) {
+func (UnimplementedListenerServer) CloseCircuits(context.Context, *ServiceEndpoints) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CloseCircuits not implemented")
 }
 func (UnimplementedListenerServer) mustEmbedUnimplementedListenerServer() {}
@@ -312,7 +312,7 @@ func RegisterListenerServer(s grpc.ServiceRegistrar, srv ListenerServer) {
 }
 
 func _Listener_OpenCircuits_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Endpoints)
+	in := new(ServiceEndpoints)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -324,13 +324,13 @@ func _Listener_OpenCircuits_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: "/protobuf.Listener/OpenCircuits",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ListenerServer).OpenCircuits(ctx, req.(*Endpoints))
+		return srv.(ListenerServer).OpenCircuits(ctx, req.(*ServiceEndpoints))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Listener_CloseCircuits_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Endpoints)
+	in := new(ServiceEndpoints)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -342,7 +342,7 @@ func _Listener_CloseCircuits_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/protobuf.Listener/CloseCircuits",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ListenerServer).CloseCircuits(ctx, req.(*Endpoints))
+		return srv.(ListenerServer).CloseCircuits(ctx, req.(*ServiceEndpoints))
 	}
 	return interceptor(ctx, in, info, handler)
 }

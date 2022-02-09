@@ -54,11 +54,12 @@ service Http {
     rpc Delete(DeleteInput) returns (Response) {}
 }
 
-message Endpoints {
-    repeated string values = 1;
+message ServiceEndpoints {
+    string service = 1;
+    repeated string endpoints = 2;
 }
 
 service Listener {
-    rpc OpenCircuits(Endpoints) returns (google.protobuf.Empty) {}
-    rpc CloseCircuits(Endpoints) returns (google.protobuf.Empty) {}
+    rpc OpenCircuits(ServiceEndpoints) returns (google.protobuf.Empty) {}
+    rpc CloseCircuits(ServiceEndpoints) returns (google.protobuf.Empty) {}
 }
