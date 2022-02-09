@@ -6,7 +6,13 @@ import (
 	"log"
 )
 
-type Sqlite3Repository struct{}
+type Sqlite3Repository struct {
+	db *sql.DB
+}
+
+func NewSqlite3Repository(db *sql.DB) Sqlite3Repository {
+	return Sqlite3Repository{db: db}
+}
 
 func (sr Sqlite3Repository) Create(db *sql.DB, model Status) {
 	tx, err := db.Begin()
