@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/naufal-dean/ccb/app"
-	"github.com/naufal-dean/ccb/db/domain/status"
 	"github.com/naufal-dean/ccb/httpserver"
 	"github.com/naufal-dean/ccb/listenerserver"
 	"github.com/naufal-dean/ccb/server"
@@ -22,11 +21,11 @@ func main() {
 
 	// TEST
 	// TODO: remove
-	application.Repositories.Status.Create(status.Status{
-		Service:  "test-euy",
-		Endpoint: "/123",
-		Status:   "CLOSED",
-	})
+	//application.Repositories.Status.Create(status.Status{
+	//	Service:  "test-euy",
+	//	Endpoint: "/123",
+	//	Status:   "CLOSED",
+	//})
 	// TEST END
 
 	server.Run(addr, func(grpcServer *grpc.Server) {
