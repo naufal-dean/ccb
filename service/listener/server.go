@@ -1,4 +1,4 @@
-package listenerserver
+package listener
 
 import (
 	"github.com/golang/protobuf/ptypes/empty"

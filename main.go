@@ -4,9 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"github.com/naufal-dean/ccb/app"
-	"github.com/naufal-dean/ccb/httpserver"
-	"github.com/naufal-dean/ccb/listenerserver"
 	"github.com/naufal-dean/ccb/server"
+	httpservice "github.com/naufal-dean/ccb/service/http"
+	listenerservice "github.com/naufal-dean/ccb/service/listener"
 	"google.golang.org/grpc"
 )
 
@@ -29,11 +29,11 @@ func main() {
 	// TEST END
 
 	server.Run(addr, func(grpcServer *grpc.Server) {
-		// Register HttpServer
-		httpServer := httpserver.New(application)
-		httpServer.Register(grpcServer)
-		// Register ListenerServer
-		listenerServer := listenerserver.New(application)
-		listenerServer.Register(grpcServer)
+		// Register service Http
+		httpService := httpservice.New(application)
+		httpService.Register(grpcServer)
+		// Register service Listener
+		listenerService := listenerservice.New(application)
+		listenerService.Register(grpcServer)
 	})
 }

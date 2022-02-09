@@ -1,4 +1,4 @@
-package httpserver
+package http
 
 import (
 	"github.com/naufal-dean/ccb/app"
