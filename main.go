@@ -77,8 +77,10 @@ func appExec(port int, dbpath string) {
 		Endpoint: "/euy/b",
 		Status:   "OPEN",
 	}
-	status.Create(a.Db)
-	log.Println(status.GetById(a.Db, 1))
+	//status.Create(a.Db)
+	for _, el := range status.GetByServiceAndEndpoint(a.Db, "service-b", "/euy/b") {
+		log.Println(el)
+	}
 
 	// Serve
 	log.Printf("Listening to: %s\n", addr)

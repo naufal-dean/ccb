@@ -18,10 +18,24 @@ func (s *Status) Create(db *sql.DB) {
 }
 
 func (s *Status) GetById(db *sql.DB, id int) *Status {
-	service, endpoint, status := repository.GetById(db, id)
+	id, service, endpoint, status := repository.GetById(db, id)
 	s.Id = id
 	s.Service = service
 	s.Endpoint = endpoint
 	s.Status = status
 	return s
+}
+
+func (s *Status) GetByServiceAndEndpoint(db *sql.DB, service, endpoint string) []*Status {
+	ids, services, endpoints, statuses := repository.GetByServiceAndEndpoint(db, service, endpoint)
+	var res []*Status
+	for i := range ids {
+		res = append(res, &Status{
+			Id:       ids[i],
+			Service:  services[i],
+			Endpoint: endpoints[i],
+			Status:   statuses[i],
+		})
+	}
+	return res
 }
