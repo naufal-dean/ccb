@@ -4,9 +4,7 @@ option go_package = "github.com/naufal-dean/ccb/protobuf";
 
 package protobuf;
 
-//message ListString {
-//    repeated string values = 1;
-//}
+import "google/protobuf/empty.proto";
 
 message RequestInput {
     string method = 1;
@@ -54,4 +52,13 @@ service Http {
     rpc Post(PostInput) returns (Response) {}
     rpc Put(PutInput) returns (Response) {}
     rpc Delete(DeleteInput) returns (Response) {}
+}
+
+message Endpoints {
+    repeated string values = 1;
+}
+
+service Listener {
+    rpc OpenCircuits(Endpoints) returns (google.protobuf.Empty) {}
+    rpc CloseCircuits(Endpoints) returns (google.protobuf.Empty) {}
 }

@@ -4,6 +4,7 @@ package protobuf
 
 import (
 	context "context"
+	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -238,6 +239,128 @@ var Http_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Delete",
 			Handler:    _Http_Delete_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "circuitbreaker.proto",
+}
+
+// ListenerClient is the client API for Listener service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type ListenerClient interface {
+	OpenCircuits(ctx context.Context, in *Endpoints, opts ...grpc.CallOption) (*empty.Empty, error)
+	CloseCircuits(ctx context.Context, in *Endpoints, opts ...grpc.CallOption) (*empty.Empty, error)
+}
+
+type listenerClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewListenerClient(cc grpc.ClientConnInterface) ListenerClient {
+	return &listenerClient{cc}
+}
+
+func (c *listenerClient) OpenCircuits(ctx context.Context, in *Endpoints, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, "/protobuf.Listener/OpenCircuits", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *listenerClient) CloseCircuits(ctx context.Context, in *Endpoints, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, "/protobuf.Listener/CloseCircuits", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ListenerServer is the server API for Listener service.
+// All implementations must embed UnimplementedListenerServer
+// for forward compatibility
+type ListenerServer interface {
+	OpenCircuits(context.Context, *Endpoints) (*empty.Empty, error)
+	CloseCircuits(context.Context, *Endpoints) (*empty.Empty, error)
+	mustEmbedUnimplementedListenerServer()
+}
+
+// UnimplementedListenerServer must be embedded to have forward compatible implementations.
+type UnimplementedListenerServer struct {
+}
+
+func (UnimplementedListenerServer) OpenCircuits(context.Context, *Endpoints) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OpenCircuits not implemented")
+}
+func (UnimplementedListenerServer) CloseCircuits(context.Context, *Endpoints) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CloseCircuits not implemented")
+}
+func (UnimplementedListenerServer) mustEmbedUnimplementedListenerServer() {}
+
+// UnsafeListenerServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ListenerServer will
+// result in compilation errors.
+type UnsafeListenerServer interface {
+	mustEmbedUnimplementedListenerServer()
+}
+
+func RegisterListenerServer(s grpc.ServiceRegistrar, srv ListenerServer) {
+	s.RegisterService(&Listener_ServiceDesc, srv)
+}
+
+func _Listener_OpenCircuits_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Endpoints)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ListenerServer).OpenCircuits(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protobuf.Listener/OpenCircuits",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ListenerServer).OpenCircuits(ctx, req.(*Endpoints))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Listener_CloseCircuits_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Endpoints)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ListenerServer).CloseCircuits(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protobuf.Listener/CloseCircuits",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ListenerServer).CloseCircuits(ctx, req.(*Endpoints))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Listener_ServiceDesc is the grpc.ServiceDesc for Listener service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Listener_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "protobuf.Listener",
+	HandlerType: (*ListenerServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "OpenCircuits",
+			Handler:    _Listener_OpenCircuits_Handler,
+		},
+		{
+			MethodName: "CloseCircuits",
+			Handler:    _Listener_CloseCircuits_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
