@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/naufal-dean/ccb/app"
 	"github.com/naufal-dean/ccb/httpserver"
+	"github.com/naufal-dean/ccb/listenerserver"
 	"github.com/naufal-dean/ccb/server"
 	"google.golang.org/grpc"
 )
@@ -22,5 +23,8 @@ func main() {
 		// Register HttpServer
 		httpServer := httpserver.New(application)
 		httpServer.Register(grpcServer)
+		// Register ListenerServer
+		listenerServer := listenerserver.New(application)
+		listenerServer.Register(grpcServer)
 	})
 }
