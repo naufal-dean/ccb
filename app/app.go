@@ -14,9 +14,9 @@ type App struct {
 }
 
 type Repositories struct {
-	requiredServiceRepository  required_service.Repository
-	requiringServiceRepository requiring_service.Repository
-	statusRepository           status.Repository
+	RequiredService  required_service.Repository
+	RequiringService requiring_service.Repository
+	Status           status.Repository
 }
 
 func initAppDb(dbpath string) *sql.DB {
@@ -33,9 +33,9 @@ func New(dbpath string) App {
 
 	return App{
 		Repositories: Repositories{
-			requiredServiceRepository:  required_service.NewSqlite3Repository(db),
-			requiringServiceRepository: requiring_service.NewSqlite3Repository(db),
-			statusRepository:           status.NewSqlite3Repository(db),
+			RequiredService:  required_service.NewSqlite3Repository(db),
+			RequiringService: requiring_service.NewSqlite3Repository(db),
+			Status:           status.NewSqlite3Repository(db),
 		},
 	}
 }

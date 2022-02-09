@@ -21,12 +21,12 @@ func (s *ListenerServer) Register(sr grpc.ServiceRegistrar) {
 	pb.RegisterListenerServer(sr, s)
 }
 
-func (s *ListenerServer) OpenCircuits(ctx context.Context, input *pb.ServiceEndpoints) (*empty.Empty, error) {
-
+func (s ListenerServer) OpenCircuits(ctx context.Context, input *pb.ServiceEndpoints) (*empty.Empty, error) {
+	s.app.Repositories.Status.CreateFromOneServiceAndManyEndpoints(input.Service, input.Endpoints, "OPEN")
 	return new(empty.Empty), nil
 }
 
-func (s *ListenerServer) CloseCircuits(ctx context.Context, input *pb.ServiceEndpoints) (*empty.Empty, error) {
+func (s ListenerServer) CloseCircuits(ctx context.Context, input *pb.ServiceEndpoints) (*empty.Empty, error) {
 
 	return new(empty.Empty), nil
 }
