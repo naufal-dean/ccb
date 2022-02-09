@@ -14,8 +14,8 @@ func NewSqlite3Repository(db *sql.DB) Sqlite3Repository {
 	return Sqlite3Repository{db: db}
 }
 
-func (sr Sqlite3Repository) Create(db *sql.DB, model RequiringService) {
-	tx, err := db.Begin()
+func (sr Sqlite3Repository) Create(model RequiringService) {
+	tx, err := sr.db.Begin()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,8 +33,8 @@ func (sr Sqlite3Repository) Create(db *sql.DB, model RequiringService) {
 	tx.Commit()
 }
 
-func (sr Sqlite3Repository) GetServicesByEndpoint(db *sql.DB, endpoint string) (services []string) {
-	stmt, err := db.Prepare("SELECT service FROM requiring_service WHERE endpoint = ?")
+func (sr Sqlite3Repository) GetServicesByEndpoint(endpoint string) (services []string) {
+	stmt, err := sr.db.Prepare("SELECT service FROM requiring_service WHERE endpoint = ?")
 	if err != nil {
 		log.Fatal(err)
 	}

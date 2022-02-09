@@ -14,8 +14,8 @@ func NewSqlite3Repository(db *sql.DB) Sqlite3Repository {
 	return Sqlite3Repository{db: db}
 }
 
-func (sr Sqlite3Repository) Create(db *sql.DB, model Status) {
-	tx, err := db.Begin()
+func (sr Sqlite3Repository) Create(model Status) {
+	tx, err := sr.db.Begin()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,8 +33,8 @@ func (sr Sqlite3Repository) Create(db *sql.DB, model Status) {
 	tx.Commit()
 }
 
-func (sr Sqlite3Repository) GetById(db *sql.DB, id int) *Status {
-	stmt, err := db.Prepare("SELECT id, service, endpoint, status FROM status WHERE id = ?")
+func (sr Sqlite3Repository) GetById(id int) *Status {
+	stmt, err := sr.db.Prepare("SELECT id, service, endpoint, status FROM status WHERE id = ?")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,8 +53,8 @@ func (sr Sqlite3Repository) GetById(db *sql.DB, id int) *Status {
 	}
 }
 
-func (sr Sqlite3Repository) GetByServiceAndEndpoint(db *sql.DB, service, endpoint string) []*Status {
-	stmt, err := db.Prepare("SELECT id, service, endpoint, status FROM status WHERE service = ? AND endpoint = ?")
+func (sr Sqlite3Repository) GetByServiceAndEndpoint(service, endpoint string) []*Status {
+	stmt, err := sr.db.Prepare("SELECT id, service, endpoint, status FROM status WHERE service = ? AND endpoint = ?")
 	if err != nil {
 		log.Fatal(err)
 	}
