@@ -5,7 +5,6 @@ import (
 )
 
 type Status struct {
-	Id       int
 	Service  string
 	Endpoint string
 	Status   string
