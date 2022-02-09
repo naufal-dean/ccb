@@ -30,6 +30,30 @@ func (sr Sqlite3Repository) Create(model Status) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	tx.Commit()
+}
+
+func (sr Sqlite3Repository) CreateFromOneServiceAndManyEndpoints(service string, endpoints []string, status string) {
+	tx, err := sr.db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Use insert or ignore to assert uniqueness
+	stmt, err := tx.Prepare("INSERT OR IGNORE INTO status(service, endpoint, status) VALUES(?, ?, ?)")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+
+	for _, endpoint := range endpoints {
+		_, err = stmt.Exec(service, endpoint, status)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	tx.Commit()
 }
 
