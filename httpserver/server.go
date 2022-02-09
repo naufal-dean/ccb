@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"github.com/naufal-dean/ccb/app"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"log"
@@ -10,7 +11,12 @@ import (
 )
 
 type HttpServer struct {
+	app app.App
 	pb.UnimplementedHttpServer
+}
+
+func New(app app.App) *HttpServer {
+	return &HttpServer{app: app}
 }
 
 func (s *HttpServer) Register(sr grpc.ServiceRegistrar) {
