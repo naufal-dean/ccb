@@ -57,28 +57,8 @@ func (sr Sqlite3Repository) CreateFromOneServiceAndManyEndpoints(service string,
 	tx.Commit()
 }
 
-func (sr Sqlite3Repository) GetById(id int) *Status {
-	stmt, err := sr.db.Prepare("SELECT id, service, endpoint, status FROM status WHERE id = ?")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer stmt.Close()
-
-	var service, endpoint, status string
-	err = stmt.QueryRow(id).Scan(&id, &service, &endpoint, &status)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return &Status{
-		Id:       id,
-		Service:  service,
-		Endpoint: endpoint,
-		Status:   status,
-	}
-}
-
 func (sr Sqlite3Repository) GetByServiceAndEndpoint(service, endpoint string) []*Status {
-	stmt, err := sr.db.Prepare("SELECT id, service, endpoint, status FROM status WHERE service = ? AND endpoint = ?")
+	stmt, err := sr.db.Prepare("SELECT service, endpoint, status FROM status WHERE service = ? AND endpoint = ?")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -91,19 +71,35 @@ func (sr Sqlite3Repository) GetByServiceAndEndpoint(service, endpoint string) []
 
 	var models []*Status
 	for rows.Next() {
-		var id int
-		var status string
-		err = rows.Scan(&id, &service, &endpoint, &status)
+		model := &Status{}
+		err = rows.Scan(&model.Service, &model.Endpoint, &model.Status)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		models = append(models, &Status{
-			Id:       id,
-			Service:  service,
-			Endpoint: endpoint,
-			Status:   status,
-		})
+		models = append(models, model)
 	}
 	return models
+}
+
+func (sr Sqlite3Repository) DeleteWhereOneServiceAndManyEndpointsEqual(service string, endpoints []string) {
+	tx, err := sr.db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	stmt, err := tx.Prepare("DELETE FROM status WHERE service=? AND endpoint=?")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+
+	for _, endpoint := range endpoints {
+		_, err = stmt.Exec(service, endpoint)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	tx.Commit()
 }
