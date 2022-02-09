@@ -39,6 +39,20 @@ func testOpenCircuits(c pb.ListenerClient) {
 	log.Println(response)
 }
 
+func testCloseCircuits(c pb.ListenerClient) {
+	response, err := c.CloseCircuits(context.Background(), &pb.ServiceEndpoints{
+		Service: "test-euy",
+		Endpoints: []string{
+			"/123",
+			"/random-euy",
+		},
+	})
+	if err != nil {
+		log.Fatalf("Failed to request to server: %v", err)
+	}
+	log.Println(response)
+}
+
 func main() {
 	conn, err := grpc.Dial(*serverAddr, grpc.WithInsecure())
 	if err != nil {
@@ -51,4 +65,5 @@ func main() {
 
 	lc := pb.NewListenerClient(conn)
 	testOpenCircuits(lc)
+	testCloseCircuits(lc)
 }
