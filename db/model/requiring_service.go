@@ -3,7 +3,7 @@ package model
 import (
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
-	repository "github.com/naufal-dean/ccb/db/repository/required_service"
+	repository "github.com/naufal-dean/ccb/db/repository/requiring_service"
 )
 
 type RequiringService struct {
@@ -16,6 +16,5 @@ func (rs *RequiringService) Create(db *sql.DB) {
 }
 
 func (rs *RequiringService) GetServicesByEndpoint(db *sql.DB, endpoint string) (services []string) {
-	// TODO: implement
-	return nil
+	return repository.GetServicesByEndpoint(db, endpoint)
 }

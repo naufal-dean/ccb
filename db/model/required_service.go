@@ -16,6 +16,5 @@ func (rs *RequiredService) Create(db *sql.DB) {
 }
 
 func (rs *RequiredService) GetEndpointsByService(db *sql.DB, endpoint string) (endpoints []string) {
-	// TODO: implement
-	return nil
+	return repository.GetEndpointsByService(db, endpoint)
 }
