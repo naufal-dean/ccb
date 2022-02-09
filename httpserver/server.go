@@ -23,7 +23,7 @@ func (s *HttpServer) Register(sr grpc.ServiceRegistrar) {
 	pb.RegisterHttpServer(sr, s)
 }
 
-func (s *HttpServer) Request(ctx context.Context, input *pb.RequestInput) (*pb.Response, error) {
+func (s HttpServer) Request(ctx context.Context, input *pb.RequestInput) (*pb.Response, error) {
 	log.Println("Received request: Request")
 
 	res, err := doRequest(input.Method, input.Url, input.Body, input.Header)
@@ -35,7 +35,7 @@ func (s *HttpServer) Request(ctx context.Context, input *pb.RequestInput) (*pb.R
 	return convertResponse(res)
 }
 
-func (s *HttpServer) Get(ctx context.Context, input *pb.GetInput) (*pb.Response, error) {
+func (s HttpServer) Get(ctx context.Context, input *pb.GetInput) (*pb.Response, error) {
 	log.Println("Received request: Get")
 
 	res, err := doRequest(http.MethodGet, input.Url, nil, input.Header)
@@ -47,7 +47,7 @@ func (s *HttpServer) Get(ctx context.Context, input *pb.GetInput) (*pb.Response,
 	return convertResponse(res)
 }
 
-func (s *HttpServer) Post(ctx context.Context, input *pb.PostInput) (*pb.Response, error) {
+func (s HttpServer) Post(ctx context.Context, input *pb.PostInput) (*pb.Response, error) {
 	log.Println("Received request: Post")
 
 	res, err := doRequest(http.MethodPost, input.Url, input.Body, input.Header)
@@ -59,7 +59,7 @@ func (s *HttpServer) Post(ctx context.Context, input *pb.PostInput) (*pb.Respons
 	return convertResponse(res)
 }
 
-func (s *HttpServer) Put(ctx context.Context, input *pb.PutInput) (*pb.Response, error) {
+func (s HttpServer) Put(ctx context.Context, input *pb.PutInput) (*pb.Response, error) {
 	log.Println("Received request: Put")
 
 	res, err := doRequest(http.MethodPut, input.Url, input.Body, input.Header)
@@ -71,7 +71,7 @@ func (s *HttpServer) Put(ctx context.Context, input *pb.PutInput) (*pb.Response,
 	return convertResponse(res)
 }
 
-func (s *HttpServer) Delete(ctx context.Context, input *pb.DeleteInput) (*pb.Response, error) {
+func (s HttpServer) Delete(ctx context.Context, input *pb.DeleteInput) (*pb.Response, error) {
 	log.Println("Received request: Delete")
 
 	res, err := doRequest(http.MethodDelete, input.Url, nil, input.Header)
