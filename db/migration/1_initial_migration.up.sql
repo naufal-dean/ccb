@@ -1,8 +1,8 @@
 CREATE TABLE status (
-    id INTEGER PRIMARY KEY,
     service TEXT NOT NULL,
     endpoint TEXT NOT NULL,
-    status TEXT NOT NULL
+    status TEXT NOT NULL,
+    PRIMARY KEY (service, endpoint)
 );
 
 -- TODO: Check if primary key order affect performance
