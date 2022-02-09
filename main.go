@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/naufal-dean/ccb/db/model"
+	"github.com/naufal-dean/ccb/db/domain/status"
 	"github.com/naufal-dean/ccb/httpserver"
 	"google.golang.org/grpc"
 	"log"
@@ -72,15 +72,17 @@ func appExec(port int, dbpath string) {
 
 	// TEST INSERT
 	// TODO: remove
-	status := model.Status{
-		Service:  "service-b",
-		Endpoint: "/euy/b",
-		Status:   "OPEN",
+	statusRepository := status.Sqlite3Repository{}
+	//statusRepository.Create(a.Db, status.Status{
+	//	Service:  "new-service",
+	//	Endpoint: "/test/euy",
+	//	Status:   "OPEN",
+	//})
+	res := statusRepository.GetByServiceAndEndpoint(a.Db, "new-service", "/test/euy")
+	for _, s := range res {
+		fmt.Println(s)
 	}
-	//status.Create(a.Db)
-	for _, el := range status.GetByServiceAndEndpoint(a.Db, "service-b", "/euy/b") {
-		log.Println(el)
-	}
+	// TEST INSERT END
 
 	// Serve
 	log.Printf("Listening to: %s\n", addr)
