@@ -4,6 +4,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/naufal-dean/ccb/app"
 	pb "github.com/naufal-dean/ccb/protobuf"
+	"github.com/naufal-dean/ccb/service/internal"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"log"
@@ -24,12 +25,32 @@ func (s *ListenerServer) Register(sr grpc.ServiceRegistrar) {
 
 func (s ListenerServer) OpenCircuits(ctx context.Context, input *pb.ServiceEndpoints) (*empty.Empty, error) {
 	log.Println("Received request: OpenCircuits")
-	s.app.Repositories.Status.CreateFromOneServiceAndManyEndpoints(input.Service, input.Endpoints, "OPEN")
+	// Store status
+	// TODO: only broadcast new updated status, to prevent circular broadcast
+	s.app.Repositories.Status.CreateFromOneRdServiceAndManyRdEndpoints(input.Service, input.Endpoints, "OPEN")
+	// Get affected endpoint
+	endpoints := s.app.Repositories.RequiredService.GetEndpointsByRdServiceAndRdEndpoints(input.Service, input.Endpoints)
+	// Get affected requiring service
+	dependencyMap := s.app.Repositories.RequiringService.GetDependencyMapByEndpoints(endpoints)
+	// Broadcast status
+	for serviceAddr, endpoints := range dependencyMap {
+		internal.BroadcastOpenCircuits(serviceAddr, endpoints)
+	}
 	return new(empty.Empty), nil
 }
 
 func (s ListenerServer) CloseCircuits(ctx context.Context, input *pb.ServiceEndpoints) (*empty.Empty, error) {
 	log.Println("Received request: CloseCircuits")
-	s.app.Repositories.Status.DeleteWhereOneServiceAndManyEndpointsEqual(input.Service, input.Endpoints)
+	// Store status
+	// TODO: only broadcast new updated status, to prevent circular broadcast
+	s.app.Repositories.Status.DeleteWhereOneRdServiceAndManyRdEndpointsEqual(input.Service, input.Endpoints)
+	// Get affected endpoint
+	endpoints := s.app.Repositories.RequiredService.GetEndpointsByRdServiceAndRdEndpoints(input.Service, input.Endpoints)
+	// Get affected requiring service
+	dependencyMap := s.app.Repositories.RequiringService.GetDependencyMapByEndpoints(endpoints)
+	// Broadcast status
+	for serviceAddr, endpoints := range dependencyMap {
+		internal.BroadcastCloseCircuits(serviceAddr, endpoints)
+	}
 	return new(empty.Empty), nil
 }
