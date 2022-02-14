@@ -62,8 +62,8 @@ func main() {
 	}
 	defer conn.Close()
 
-	//hc := pb.NewHttpClient(conn)
-	//testGet(hc)
+	hc := pb.NewHttpClient(conn)
+	testGet(hc)
 
 	lc := pb.NewListenerClient(conn)
 	testOpenCircuits(lc)
