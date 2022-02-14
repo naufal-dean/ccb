@@ -20,27 +20,27 @@ func (sr Sqlite3Repository) Create(model RequiredService) {
 		log.Fatal(err)
 	}
 
-	stmt, err := tx.Prepare("INSERT INTO required_service(endpoint, service) VALUES(?, ?)")
+	stmt, err := tx.Prepare("INSERT INTO required_service(endpoint, rd_service, rd_endpoint) VALUES(?, ?, ?)")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(model.Endpoint, model.Service)
+	_, err = stmt.Exec(model.Endpoint, model.RdService, model.RdEndpoint)
 	if err != nil {
 		log.Fatal(err)
 	}
 	tx.Commit()
 }
 
-func (sr Sqlite3Repository) GetEndpointsByService(service string) (endpoints []string) {
-	stmt, err := sr.db.Prepare("SELECT endpoint FROM required_service WHERE service = ?")
+func (sr Sqlite3Repository) GetEndpointsByRdService(rdService string) (endpoints []string) {
+	stmt, err := sr.db.Prepare("SELECT endpoint FROM required_service WHERE rd_service = ?")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(service)
+	rows, err := stmt.Query(rdService)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,6 +53,32 @@ func (sr Sqlite3Repository) GetEndpointsByService(service string) (endpoints []s
 		}
 
 		endpoints = append(endpoints, endpoint)
+	}
+	return endpoints
+}
+
+func (sr Sqlite3Repository) GetEndpointsByRdServiceAndRdEndpoints(rdService string, rdEndpoints []string) (endpoints []string) {
+	stmt, err := sr.db.Prepare("SELECT endpoint FROM required_service WHERE rd_service = ? AND rd_endpoint = ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+
+	for _, rdEndpoint := range rdEndpoints {
+		rows, err := stmt.Query(rdService, rdEndpoint)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for rows.Next() {
+			var endpoint string
+			err = rows.Scan(&endpoint)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			endpoints = append(endpoints, endpoint)
+		}
 	}
 	return endpoints
 }

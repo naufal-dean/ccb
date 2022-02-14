@@ -2,5 +2,6 @@ package required_service
 
 type Repository interface {
 	Create(model RequiredService)
-	GetEndpointsByService(service string) (endpoints []string)
+	GetEndpointsByRdService(rdService string) (endpoints []string)
+	GetEndpointsByRdServiceAndRdEndpoints(rdService string, rdEndpoints []string) (endpoints []string)
 }
