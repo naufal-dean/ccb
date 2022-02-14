@@ -2,7 +2,7 @@ package status
 
 type Repository interface {
 	Create(model Status)
-	CreateFromOneServiceAndManyEndpoints(service string, endpoints []string, status string)
-	GetByServiceAndEndpoint(service, endpoint string) []*Status
-	DeleteWhereOneServiceAndManyEndpointsEqual(service string, endpoints []string)
+	CreateFromOneRdServiceAndManyRdEndpoints(rdService string, rdEndpoints []string, status string)
+	GetByRdServiceAndRdEndpoint(rdService, rdEndpoint string) []*Status
+	DeleteWhereOneRdServiceAndManyRdEndpointsEqual(rdService string, rdEndpoints []string)
 }

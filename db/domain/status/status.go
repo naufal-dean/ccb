@@ -5,7 +5,7 @@ import (
 )
 
 type Status struct {
-	Service  string
-	Endpoint string
-	Status   string
+	RdService  string
+	RdEndpoint string
+	Status     string
 }

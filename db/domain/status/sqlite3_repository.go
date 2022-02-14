@@ -20,13 +20,13 @@ func (sr Sqlite3Repository) Create(model Status) {
 		log.Fatal(err)
 	}
 
-	stmt, err := tx.Prepare("INSERT INTO status(service, endpoint, status) VALUES(?, ?, ?)")
+	stmt, err := tx.Prepare("INSERT INTO status(rd_service, rd_endpoint, status) VALUES(?, ?, ?)")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(model.Service, model.Endpoint, model.Status)
+	_, err = stmt.Exec(model.RdService, model.RdEndpoint, model.Status)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,21 +34,21 @@ func (sr Sqlite3Repository) Create(model Status) {
 	tx.Commit()
 }
 
-func (sr Sqlite3Repository) CreateFromOneServiceAndManyEndpoints(service string, endpoints []string, status string) {
+func (sr Sqlite3Repository) CreateFromOneRdServiceAndManyRdEndpoints(rdService string, rdEndpoints []string, status string) {
 	tx, err := sr.db.Begin()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Use insert or ignore to assert uniqueness
-	stmt, err := tx.Prepare("INSERT OR IGNORE INTO status(service, endpoint, status) VALUES(?, ?, ?)")
+	stmt, err := tx.Prepare("INSERT OR IGNORE INTO status(rd_service, rd_endpoint, status) VALUES(?, ?, ?)")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer stmt.Close()
 
-	for _, endpoint := range endpoints {
-		_, err = stmt.Exec(service, endpoint, status)
+	for _, rdEndpoint := range rdEndpoints {
+		_, err = stmt.Exec(rdService, rdEndpoint, status)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -57,14 +57,14 @@ func (sr Sqlite3Repository) CreateFromOneServiceAndManyEndpoints(service string,
 	tx.Commit()
 }
 
-func (sr Sqlite3Repository) GetByServiceAndEndpoint(service, endpoint string) []*Status {
-	stmt, err := sr.db.Prepare("SELECT service, endpoint, status FROM status WHERE service = ? AND endpoint = ?")
+func (sr Sqlite3Repository) GetByRdServiceAndRdEndpoint(rdService, rdEndpoint string) []*Status {
+	stmt, err := sr.db.Prepare("SELECT rd_service, rd_endpoint, status FROM status WHERE rd_service = ? AND rd_endpoint = ?")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(service, endpoint)
+	rows, err := stmt.Query(rdService, rdEndpoint)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,7 +72,7 @@ func (sr Sqlite3Repository) GetByServiceAndEndpoint(service, endpoint string) []
 	var models []*Status
 	for rows.Next() {
 		model := &Status{}
-		err = rows.Scan(&model.Service, &model.Endpoint, &model.Status)
+		err = rows.Scan(&model.RdService, &model.RdEndpoint, &model.Status)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -82,20 +82,20 @@ func (sr Sqlite3Repository) GetByServiceAndEndpoint(service, endpoint string) []
 	return models
 }
 
-func (sr Sqlite3Repository) DeleteWhereOneServiceAndManyEndpointsEqual(service string, endpoints []string) {
+func (sr Sqlite3Repository) DeleteWhereOneRdServiceAndManyRdEndpointsEqual(rdService string, rdEndpoints []string) {
 	tx, err := sr.db.Begin()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	stmt, err := tx.Prepare("DELETE FROM status WHERE service=? AND endpoint=?")
+	stmt, err := tx.Prepare("DELETE FROM status WHERE rd_service = ? AND rd_endpoint = ?")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer stmt.Close()
 
-	for _, endpoint := range endpoints {
-		_, err = stmt.Exec(service, endpoint)
+	for _, rdEndpoint := range rdEndpoints {
+		_, err = stmt.Exec(rdService, rdEndpoint)
 		if err != nil {
 			log.Fatal(err)
 		}
