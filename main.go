@@ -26,6 +26,8 @@ func main() {
 	//	Endpoint: "/123",
 	//	Status:   "CLOSED",
 	//})
+	//depMap := application.Repositories.RequiringService.GetDependencyMapByEndpoints([]string{"/endpoint-aa", "/endpoint-d"})
+	//log.Print(depMap)
 	// TEST END
 
 	server.Run(addr, func(grpcServer *grpc.Server) {

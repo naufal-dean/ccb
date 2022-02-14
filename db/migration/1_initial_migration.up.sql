@@ -1,4 +1,4 @@
--- TODO: add rd_method
+-- TODO: add rd_method column
 CREATE TABLE status (
     rd_service TEXT NOT NULL,
     rd_endpoint TEXT NOT NULL,
@@ -7,6 +7,7 @@ CREATE TABLE status (
 );
 
 -- TODO: Check if primary key order affect performance
+-- TODO: add method column
 CREATE TABLE requiring_service (
    rg_service TEXT NOT NULL,
    endpoint TEXT NOT NULL,
@@ -14,7 +15,7 @@ CREATE TABLE requiring_service (
 );
 
 -- TODO: Check if primary key order affect performance
--- TODO: add rd_method
+-- TODO: add rd_method and method columns
 CREATE TABLE required_service (
   endpoint TEXT NOT NULL,
   rd_service TEXT NOT NULL,
