@@ -20,21 +20,21 @@ func (sr Sqlite3Repository) Create(model RequiringService) {
 		log.Fatal(err)
 	}
 
-	stmt, err := tx.Prepare("INSERT INTO requiring_service(service, endpoint) VALUES(?, ?)")
+	stmt, err := tx.Prepare("INSERT INTO requiring_service(rg_service, endpoint) VALUES(?, ?)")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(model.Service, model.Endpoint)
+	_, err = stmt.Exec(model.RgService, model.Endpoint)
 	if err != nil {
 		log.Fatal(err)
 	}
 	tx.Commit()
 }
 
-func (sr Sqlite3Repository) GetServicesByEndpoint(endpoint string) (services []string) {
-	stmt, err := sr.db.Prepare("SELECT service FROM requiring_service WHERE endpoint = ?")
+func (sr Sqlite3Repository) GetRgServicesByEndpoint(endpoint string) (rgServices []string) {
+	stmt, err := sr.db.Prepare("SELECT rg_service FROM requiring_service WHERE endpoint = ?")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,13 +46,13 @@ func (sr Sqlite3Repository) GetServicesByEndpoint(endpoint string) (services []s
 	}
 
 	for rows.Next() {
-		var service string
-		err = rows.Scan(&service)
+		var rgService string
+		err = rows.Scan(&rgService)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		services = append(services, service)
+		rgServices = append(rgServices, rgService)
 	}
-	return services
+	return rgServices
 }
