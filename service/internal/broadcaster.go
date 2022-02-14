@@ -7,13 +7,10 @@ import (
 	"log"
 )
 
-const (
-	// TODO: get service name from env var or app struct
-	serviceName = "service-test"
-)
+func BroadcastOpenCircuits(currServiceName, targetServiceAddr string, endpoints []string) {
+	log.Println("Exec: BroadcastOpenCircuits")
 
-func BroadcastOpenCircuits(serverAddr string, endpoints []string) {
-	conn, err := grpc.Dial(serverAddr, grpc.WithInsecure())
+	conn, err := grpc.Dial(targetServiceAddr, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Failed to dial: %v", err)
 	}
@@ -22,7 +19,7 @@ func BroadcastOpenCircuits(serverAddr string, endpoints []string) {
 	client := pb.NewListenerClient(conn)
 
 	_, err = client.OpenCircuits(context.Background(), &pb.ServiceEndpoints{
-		Service:   serviceName,
+		Service:   currServiceName,
 		Endpoints: endpoints,
 	})
 	if err != nil {
@@ -30,8 +27,10 @@ func BroadcastOpenCircuits(serverAddr string, endpoints []string) {
 	}
 }
 
-func BroadcastCloseCircuits(serverAddr string, endpoints []string) {
-	conn, err := grpc.Dial(serverAddr, grpc.WithInsecure())
+func BroadcastCloseCircuits(currServiceName, targetServiceAddr string, endpoints []string) {
+	log.Println("Exec: BroadcastCloseCircuits")
+
+	conn, err := grpc.Dial(targetServiceAddr, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Failed to dial: %v", err)
 	}
@@ -40,7 +39,7 @@ func BroadcastCloseCircuits(serverAddr string, endpoints []string) {
 	client := pb.NewListenerClient(conn)
 
 	_, err = client.CloseCircuits(context.Background(), &pb.ServiceEndpoints{
-		Service:   serviceName,
+		Service:   currServiceName,
 		Endpoints: endpoints,
 	})
 	if err != nil {

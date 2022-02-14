@@ -30,11 +30,14 @@ func (s ListenerServer) OpenCircuits(ctx context.Context, input *pb.ServiceEndpo
 	s.app.Repositories.Status.CreateFromOneRdServiceAndManyRdEndpoints(input.Service, input.Endpoints, "OPEN")
 	// Get affected endpoint
 	endpoints := s.app.Repositories.RequiredService.GetEndpointsByRdServiceAndRdEndpoints(input.Service, input.Endpoints)
+	log.Printf("OpenCircuits: Endpoints: %v\n", endpoints)
 	// Get affected requiring service
 	dependencyMap := s.app.Repositories.RequiringService.GetDependencyMapByEndpoints(endpoints)
+	log.Printf("OpenCircuits: Dep Map: %v\n", dependencyMap)
 	// Broadcast status
 	for serviceAddr, endpoints := range dependencyMap {
-		internal.BroadcastOpenCircuits(serviceAddr, endpoints)
+		log.Printf("OpenCircuits: Broadcast: %v, %v, %v\n", s.app.ServiceName, serviceAddr, endpoints)
+		internal.BroadcastOpenCircuits(s.app.ServiceName, serviceAddr, endpoints)
 	}
 	return new(empty.Empty), nil
 }
@@ -50,7 +53,7 @@ func (s ListenerServer) CloseCircuits(ctx context.Context, input *pb.ServiceEndp
 	dependencyMap := s.app.Repositories.RequiringService.GetDependencyMapByEndpoints(endpoints)
 	// Broadcast status
 	for serviceAddr, endpoints := range dependencyMap {
-		internal.BroadcastCloseCircuits(serviceAddr, endpoints)
+		internal.BroadcastCloseCircuits(s.app.ServiceName, serviceAddr, endpoints)
 	}
 	return new(empty.Empty), nil
 }
