@@ -3,17 +3,9 @@ package http
 import (
 	"github.com/naufal-dean/ccb/db/domain/required_service"
 	"github.com/naufal-dean/ccb/db/domain/requiring_service"
-	"log"
-	"net/url"
 )
 
-const (
-	requiringServiceHeader = "X-Requiring-Service"
-	currentEndpointHeader  = "X-Endpoint"
-	currentMethodHeader    = "X-Method"
-)
-
-func buildDependency(targetUrl string, initialHeader map[string]string) (*requiring_service.RequiringService, *required_service.RequiredService, bool) {
+func buildDependency(requiredService, requiredEndpoint string, initialHeader map[string]string) (*requiring_service.RequiringService, *required_service.RequiredService, bool) {
 	// Parse requiring service data
 	// If any of metadata header not exists, then no need to store dependency tree as it will not be used
 	requiringService, ok := initialHeader[requiringServiceHeader]
@@ -24,15 +16,7 @@ func buildDependency(targetUrl string, initialHeader map[string]string) (*requir
 	if !ok {
 		return nil, nil, false
 	}
-
-	// Parse required service data
-	u, err := url.Parse(targetUrl)
-	if err != nil {
-		log.Printf("Failed to parse target URL: %v\n", err)
-		return nil, nil, false
-	}
-	requiredService := u.Host
-	requiredEndpoint := u.Path
+	// TODO: check http method in header
 
 	// Create models
 	requiringServiceModel := &requiring_service.RequiringService{
