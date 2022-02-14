@@ -25,12 +25,13 @@ func testGet(c pb.HttpClient) {
 
 func testOpenCircuits(c pb.ListenerClient) {
 	response, err := c.OpenCircuits(context.Background(), &pb.ServiceEndpoints{
-		Service: "test-euy",
+		Service: "client",
 		Endpoints: []string{
 			"/124",
 			"/hehe",
 			"/123",
 			"/random-euy",
+			"/client",
 		},
 	})
 	if err != nil {
@@ -41,10 +42,11 @@ func testOpenCircuits(c pb.ListenerClient) {
 
 func testCloseCircuits(c pb.ListenerClient) {
 	response, err := c.CloseCircuits(context.Background(), &pb.ServiceEndpoints{
-		Service: "test-euy",
+		Service: "client",
 		Endpoints: []string{
 			"/123",
 			"/random-euy",
+			"/client",
 		},
 	})
 	if err != nil {
@@ -60,10 +62,10 @@ func main() {
 	}
 	defer conn.Close()
 
-	hc := pb.NewHttpClient(conn)
-	testGet(hc)
+	//hc := pb.NewHttpClient(conn)
+	//testGet(hc)
 
 	lc := pb.NewListenerClient(conn)
 	testOpenCircuits(lc)
-	testCloseCircuits(lc)
+	//testCloseCircuits(lc)
 }
