@@ -17,7 +17,7 @@ func main() {
 	dbPath := flag.String("dbpath", "", "The server sqlite3 db path")
 
 	flag.Parse()
-	addr := fmt.Sprintf("localhost:%d", *port)
+	addr := fmt.Sprintf(":%d", *port)
 
 	application := app.New(*serviceName, *dbPath)
 
