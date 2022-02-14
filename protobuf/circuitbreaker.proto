@@ -11,28 +11,33 @@ message RequestInput {
     string url = 2;
     map<string, string> header = 3;
     bytes body = 4;
+    map<string, string> initial_header = 5;
 }
 
 message GetInput {
     string url = 1;
     map<string, string> header = 2;
+    map<string, string> initial_header = 3;
 }
 
 message PostInput {
     string url = 1;
     map<string, string> header = 2;
     bytes body = 3;
+    map<string, string> initial_header = 4;
 }
 
 message PutInput {
     string url = 1;
     map<string, string> header = 2;
     bytes body = 3;
+    map<string, string> initial_header = 4;
 }
 
 message DeleteInput {
     string url = 1;
     map<string, string> header = 2;
+    map<string, string> initial_header = 3;
 }
 
 message Response {
