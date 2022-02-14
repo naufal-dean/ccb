@@ -1,7 +1,7 @@
 package internal
 
 import (
-	pb "github.com/naufal-dean/ccb/examples/client/protobuf"
+	pb "github.com/naufal-dean/ccb/protobuf"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"log"
