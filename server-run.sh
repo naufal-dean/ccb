@@ -2,4 +2,8 @@
 
 source ./protobuf/protoc.sh
 
-go run main.go --dbpath ccb.db
+if [ -n "$1" ]; then
+  go run main.go --dbpath ccb.db --port "$1"
+else
+  go run main.go --dbpath ccb.db
+fi
