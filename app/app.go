@@ -10,6 +10,7 @@ import (
 )
 
 type App struct {
+	ServiceName  string
 	Repositories Repositories
 }
 
@@ -19,19 +20,20 @@ type Repositories struct {
 	Status           status.Repository
 }
 
-func initAppDb(dbpath string) *sql.DB {
-	db, err := sql.Open("sqlite3", dbpath)
+func initAppDb(dbPath string) *sql.DB {
+	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Connection to db '%s' established...", dbpath)
+	log.Printf("Connection to db '%s' established...", dbPath)
 	return db
 }
 
-func New(dbpath string) App {
-	db := initAppDb(dbpath)
+func New(serviceName, dbPath string) App {
+	db := initAppDb(dbPath)
 
 	return App{
+		ServiceName: serviceName,
 		Repositories: Repositories{
 			RequiredService:  required_service.NewSqlite3Repository(db),
 			RequiringService: requiring_service.NewSqlite3Repository(db),

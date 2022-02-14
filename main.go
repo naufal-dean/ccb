@@ -12,12 +12,14 @@ import (
 
 func main() {
 	port := flag.Int("port", 50051, "The server port")
-	dbpath := flag.String("dbpath", "", "The server sqlite3 db path")
+	// TODO: get service name from env config
+	serviceName := flag.String("name", "localhost:50051", "This service name on Kube DNS")
+	dbPath := flag.String("dbpath", "", "The server sqlite3 db path")
 
 	flag.Parse()
 	addr := fmt.Sprintf("localhost:%d", *port)
 
-	application := app.New(*dbpath)
+	application := app.New(*serviceName, *dbPath)
 
 	// TEST
 	// TODO: remove
