@@ -2,11 +2,13 @@ package app
 
 import (
 	"database/sql"
+	"log"
+
 	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/naufal-dean/ccb/db/domain/required_service"
 	"github.com/naufal-dean/ccb/db/domain/requiring_service"
 	"github.com/naufal-dean/ccb/db/domain/status"
-	"log"
 )
 
 type App struct {

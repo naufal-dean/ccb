@@ -1,9 +1,10 @@
 package server
 
 import (
-	"google.golang.org/grpc"
 	"log"
 	"net"
+
+	"google.golang.org/grpc"
 )
 
 func Run(addr string, registerServer func(*grpc.Server)) {

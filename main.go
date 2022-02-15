@@ -3,11 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
+
+	"google.golang.org/grpc"
+
 	"github.com/naufal-dean/ccb/app"
 	"github.com/naufal-dean/ccb/server"
 	httpservice "github.com/naufal-dean/ccb/service/http"
 	listenerservice "github.com/naufal-dean/ccb/service/listener"
-	"google.golang.org/grpc"
 )
 
 func main() {

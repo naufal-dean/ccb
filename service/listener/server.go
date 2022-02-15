@@ -1,13 +1,15 @@
 package listener
 
 import (
+	"log"
+
 	"github.com/golang/protobuf/ptypes/empty"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+
 	"github.com/naufal-dean/ccb/app"
 	pb "github.com/naufal-dean/ccb/protobuf"
 	"github.com/naufal-dean/ccb/service/internal"
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"log"
 )
 
 type ListenerServer struct {

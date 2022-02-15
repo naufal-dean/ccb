@@ -2,10 +2,12 @@ package main
 
 import (
 	"flag"
-	pb "github.com/naufal-dean/ccb/examples/client/protobuf"
+	"log"
+
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"log"
+
+	pb "github.com/naufal-dean/ccb/examples/client/protobuf"
 )
 
 var (

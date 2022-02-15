@@ -1,10 +1,12 @@
 package internal
 
 import (
-	pb "github.com/naufal-dean/ccb/protobuf"
+	"log"
+
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"log"
+
+	pb "github.com/naufal-dean/ccb/protobuf"
 )
 
 func BroadcastOpenCircuits(currServiceName, targetServiceAddr string, endpoints []string) {

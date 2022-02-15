@@ -1,13 +1,15 @@
 package http
 
 import (
-	"github.com/naufal-dean/ccb/app"
-	pb "github.com/naufal-dean/ccb/protobuf"
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
 	"log"
 	"net/http"
 	"net/url"
+
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+
+	"github.com/naufal-dean/ccb/app"
+	pb "github.com/naufal-dean/ccb/protobuf"
 )
 
 type HttpServer struct {

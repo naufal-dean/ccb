@@ -2,8 +2,9 @@ package required_service
 
 import (
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
 	"log"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type Sqlite3Repository struct {
