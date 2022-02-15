@@ -58,13 +58,12 @@ func (s ListenerServer) OpenCircuits(ctx context.Context, input *pb.ServiceEndpo
 func (s ListenerServer) CloseCircuits(ctx context.Context, input *pb.ServiceEndpoints) (*empty.Empty, error) {
 	log.Println("Received request: CloseCircuits")
 	// Store status
-	// TODO: only broadcast new updated status, to prevent circular broadcast
-	err := s.app.Repositories.Status.DeleteWhereOneRdServiceAndManyRdEndpointsEqual(input.Service, input.Endpoints)
+	deletedRdEndpoints, err := s.app.Repositories.Status.DeleteWhereOneRdServiceAndManyRdEndpointsEqual(input.Service, input.Endpoints)
 	if err != nil {
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to remove open circuits data")
 	}
-	// Get affected endpoint
-	endpoints, err := s.app.Repositories.RequiredService.GetEndpointsByRdServiceAndRdEndpoints(input.Service, input.Endpoints)
+	// Get affected endpoint (only broadcast new deleted rd endpoints)
+	endpoints, err := s.app.Repositories.RequiredService.GetEndpointsByRdServiceAndRdEndpoints(input.Service, deletedRdEndpoints)
 	if err != nil {
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to get affected endpoint")
 	}

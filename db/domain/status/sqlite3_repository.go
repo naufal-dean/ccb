@@ -96,7 +96,54 @@ func (sr Sqlite3Repository) GetByRdServiceAndRdEndpoint(rdService, rdEndpoint st
 	return models, nil
 }
 
-func (sr Sqlite3Repository) DeleteWhereOneRdServiceAndManyRdEndpointsEqual(rdService string, rdEndpoints []string) error {
+func (sr Sqlite3Repository) DeleteWhereOneRdServiceAndManyRdEndpointsEqual(rdService string, rdEndpoints []string) ([]string, error) {
+	tx, err := sr.db.Begin()
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	checkStmt, err := tx.Prepare("SELECT 1 FROM status WHERE rd_service = ? AND rd_endpoint = ?")
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer checkStmt.Close()
+
+	stmt, err := tx.Prepare("DELETE FROM status WHERE rd_service = ? AND rd_endpoint = ?")
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer stmt.Close()
+
+	var deletedRdEndpoints []string
+	for _, rdEndpoint := range rdEndpoints {
+		// If row not exists, then there are no status update (no need to broadcast later)
+		// If the query selects no rows, the *Row's Scan will return ErrNoRows
+		var temp int
+		err := checkStmt.QueryRow(rdService, rdEndpoint).Scan(&temp)
+		if err != nil {
+			// TODO: maybe check the error type, assert that it is ErrNoRows
+			log.Printf("Endpoint %s not updated\n", rdEndpoint) // Debug
+			continue
+		}
+		// Here the row to be deleted is guaranteed to be exists
+		_, err = stmt.Exec(rdService, rdEndpoint)
+		if err != nil {
+			log.Println(err)
+			tx.Rollback()
+			return nil, err
+		}
+		deletedRdEndpoints = append(deletedRdEndpoints, rdEndpoint)
+	}
+
+	tx.Commit()
+	return deletedRdEndpoints, nil
+}
+
+func (sr Sqlite3Repository) oldDeleteWhereOneRdServiceAndManyRdEndpointsEqual(rdService string, rdEndpoints []string) error {
+	// Deprecated
 	tx, err := sr.db.Begin()
 	if err != nil {
 		log.Println(err)
@@ -114,6 +161,7 @@ func (sr Sqlite3Repository) DeleteWhereOneRdServiceAndManyRdEndpointsEqual(rdSer
 		_, err = stmt.Exec(rdService, rdEndpoint)
 		if err != nil {
 			log.Println(err)
+			tx.Rollback()
 			return err
 		}
 	}
