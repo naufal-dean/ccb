@@ -20,7 +20,8 @@ func testGet(c pb.HttpClient) {
 		Header: nil,
 	})
 	if err != nil {
-		log.Fatalf("Failed to request to server: %v", err)
+		log.Printf("Failed to request to server: %v\n", err)
+		return
 	}
 	log.Println(string(response.Body))
 }
@@ -37,7 +38,8 @@ func testOpenCircuits(c pb.ListenerClient) {
 		},
 	})
 	if err != nil {
-		log.Fatalf("Failed to request to server: %v", err)
+		log.Printf("Failed to request to server: %v\n", err)
+		return
 	}
 	log.Println(response)
 }
@@ -52,7 +54,8 @@ func testCloseCircuits(c pb.ListenerClient) {
 		},
 	})
 	if err != nil {
-		log.Fatalf("Failed to request to server: %v", err)
+		log.Printf("Failed to request to server: %v\n", err)
+		return
 	}
 	log.Println(response)
 }

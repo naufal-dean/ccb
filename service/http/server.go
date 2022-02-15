@@ -7,6 +7,8 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/naufal-dean/ccb/app"
 	pb "github.com/naufal-dean/ccb/protobuf"
@@ -50,7 +52,7 @@ func (s HttpServer) Request(ctx context.Context, input *pb.RequestInput) (*pb.Re
 
 	res, err := doRequest(input.Method, input.Url, input.Body, input.Header, &s.app.ServiceName, targetEndpoint)
 	if err != nil {
-		return nil, err
+		return new(pb.Response), status.Error(codes.Internal, "Failed to execute the request")
 	}
 	defer res.Body.Close()
 
@@ -64,7 +66,7 @@ func (s HttpServer) Get(ctx context.Context, input *pb.GetInput) (*pb.Response, 
 
 	res, err := doRequest(http.MethodGet, input.Url, nil, input.Header, &s.app.ServiceName, targetEndpoint)
 	if err != nil {
-		return nil, err
+		return new(pb.Response), status.Error(codes.Internal, "Failed to execute the request")
 	}
 	defer res.Body.Close()
 
@@ -78,7 +80,7 @@ func (s HttpServer) Post(ctx context.Context, input *pb.PostInput) (*pb.Response
 
 	res, err := doRequest(http.MethodPost, input.Url, input.Body, input.Header, &s.app.ServiceName, targetEndpoint)
 	if err != nil {
-		return nil, err
+		return new(pb.Response), status.Error(codes.Internal, "Failed to execute the request")
 	}
 	defer res.Body.Close()
 
@@ -92,7 +94,7 @@ func (s HttpServer) Put(ctx context.Context, input *pb.PutInput) (*pb.Response, 
 
 	res, err := doRequest(http.MethodPut, input.Url, input.Body, input.Header, &s.app.ServiceName, targetEndpoint)
 	if err != nil {
-		return nil, err
+		return new(pb.Response), status.Error(codes.Internal, "Failed to execute the request")
 	}
 	defer res.Body.Close()
 
@@ -106,7 +108,7 @@ func (s HttpServer) Delete(ctx context.Context, input *pb.DeleteInput) (*pb.Resp
 
 	res, err := doRequest(http.MethodDelete, input.Url, nil, input.Header, &s.app.ServiceName, targetEndpoint)
 	if err != nil {
-		return nil, err
+		return new(pb.Response), status.Error(codes.Internal, "Failed to execute the request")
 	}
 	defer res.Body.Close()
 
