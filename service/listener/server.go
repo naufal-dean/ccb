@@ -30,26 +30,22 @@ func (s *ListenerServer) Register(sr grpc.ServiceRegistrar) {
 func (s ListenerServer) OpenCircuits(ctx context.Context, input *pb.ServiceEndpoints) (*empty.Empty, error) {
 	log.Println("Received request: OpenCircuits")
 	// Store status
-	// TODO: only broadcast new updated status, to prevent circular broadcast
-	err := s.app.Repositories.Status.CreateFromOneRdServiceAndManyRdEndpoints(input.Service, input.Endpoints, "OPEN")
+	createdRdEndpoints, err := s.app.Repositories.Status.CreateFromOneRdServiceAndManyRdEndpoints(input.Service, input.Endpoints, "OPEN")
 	if err != nil {
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to store open circuits data")
 	}
-	// Get affected endpoint
-	endpoints, err := s.app.Repositories.RequiredService.GetEndpointsByRdServiceAndRdEndpoints(input.Service, input.Endpoints)
+	// Get affected endpoint (only broadcast new created rd endpoints)
+	endpoints, err := s.app.Repositories.RequiredService.GetEndpointsByRdServiceAndRdEndpoints(input.Service, createdRdEndpoints)
 	if err != nil {
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to get affected endpoint")
 	}
-	log.Printf("OpenCircuits: Endpoints: %v\n", endpoints)
 	// Get affected requiring service
 	dependencyMap, err := s.app.Repositories.RequiringService.GetDependencyMapByEndpoints(endpoints)
 	if err != nil {
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to get affected requiring service")
 	}
-	log.Printf("OpenCircuits: Dep Map: %v\n", dependencyMap)
 	// Broadcast status
 	for serviceAddr, endpoints := range dependencyMap {
-		log.Printf("OpenCircuits: Broadcast: %v, %v, %v\n", s.app.ServiceName, serviceAddr, endpoints)
 		internal.BroadcastOpenCircuits(s.app.ServiceName, serviceAddr, endpoints)
 	}
 	return new(empty.Empty), nil

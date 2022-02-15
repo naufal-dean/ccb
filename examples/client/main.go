@@ -71,6 +71,6 @@ func main() {
 	testGet(hc)
 
 	lc := pb.NewListenerClient(conn)
-	//testOpenCircuits(lc)
-	testCloseCircuits(lc)
+	testOpenCircuits(lc)
+	//testCloseCircuits(lc)
 }

@@ -40,32 +40,49 @@ func (sr Sqlite3Repository) Create(model Status) error {
 	return nil
 }
 
-func (sr Sqlite3Repository) CreateFromOneRdServiceAndManyRdEndpoints(rdService string, rdEndpoints []string, status string) error {
+func (sr Sqlite3Repository) CreateFromOneRdServiceAndManyRdEndpoints(rdService string, rdEndpoints []string, status string) ([]string, error) {
 	tx, err := sr.db.Begin()
 	if err != nil {
 		log.Println(err)
-		return err
+		return nil, err
 	}
 
-	// Use insert or ignore to assert uniqueness
-	stmt, err := tx.Prepare("INSERT OR IGNORE INTO status(rd_service, rd_endpoint, status) VALUES(?, ?, ?)")
+	checkStmt, err := tx.Prepare("SELECT 1 FROM status WHERE rd_service = ? AND rd_endpoint = ?")
 	if err != nil {
 		log.Println(err)
-		return err
+		return nil, err
+	}
+	defer checkStmt.Close()
+
+	stmt, err := tx.Prepare("INSERT INTO status(rd_service, rd_endpoint, status) VALUES(?, ?, ?)")
+	if err != nil {
+		log.Println(err)
+		return nil, err
 	}
 	defer stmt.Close()
 
+	var createdRdEndpoints []string
 	for _, rdEndpoint := range rdEndpoints {
+		// If row already exists, then there are no status update (no need to broadcast later)
+		// If the query selects no rows, the *Row's Scan will return ErrNoRows
+		var temp int
+		err := checkStmt.QueryRow(rdService, rdEndpoint).Scan(&temp)
+		if err == nil && temp == 1 {
+			log.Printf("Endpoint %s not updated\n", rdEndpoint) // Debug
+			continue
+		}
+		// Here the row to be created is guaranteed to be unique (PK pair not already exists)
 		_, err = stmt.Exec(rdService, rdEndpoint, status)
 		if err != nil {
 			log.Println(err)
 			tx.Rollback()
-			return err
+			return nil, err
 		}
+		createdRdEndpoints = append(createdRdEndpoints, rdEndpoint)
 	}
 
 	tx.Commit()
-	return nil
+	return createdRdEndpoints, nil
 }
 
 func (sr Sqlite3Repository) GetByRdServiceAndRdEndpoint(rdService, rdEndpoint string) ([]*Status, error) {
@@ -140,6 +157,35 @@ func (sr Sqlite3Repository) DeleteWhereOneRdServiceAndManyRdEndpointsEqual(rdSer
 
 	tx.Commit()
 	return deletedRdEndpoints, nil
+}
+
+func (sr Sqlite3Repository) oldCreateFromOneRdServiceAndManyRdEndpoints(rdService string, rdEndpoints []string, status string) error {
+	// Deprecated
+	tx, err := sr.db.Begin()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// Use insert or ignore to assert uniqueness
+	stmt, err := tx.Prepare("INSERT OR IGNORE INTO status(rd_service, rd_endpoint, status) VALUES(?, ?, ?)")
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	defer stmt.Close()
+
+	for _, rdEndpoint := range rdEndpoints {
+		_, err = stmt.Exec(rdService, rdEndpoint, status)
+		if err != nil {
+			log.Println(err)
+			tx.Rollback()
+			return err
+		}
+	}
+
+	tx.Commit()
+	return nil
 }
 
 func (sr Sqlite3Repository) oldDeleteWhereOneRdServiceAndManyRdEndpointsEqual(rdService string, rdEndpoints []string) error {
