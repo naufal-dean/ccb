@@ -1,7 +1,7 @@
 package requiring_service
 
 type Repository interface {
-	Create(model RequiringService)
-	GetRgServicesByEndpoint(endpoint string) (rgServices []string)
-	GetDependencyMapByEndpoints(endpoints []string) (dependencyMap map[string][]string)
+	Create(model RequiringService) error
+	GetRgServicesByEndpoint(endpoint string) ([]string, error)
+	GetDependencyMapByEndpoints(endpoints []string) (map[string][]string, error)
 }

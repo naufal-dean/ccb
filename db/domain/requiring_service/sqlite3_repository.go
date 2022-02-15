@@ -15,53 +15,63 @@ func NewSqlite3Repository(db *sql.DB) Sqlite3Repository {
 	return Sqlite3Repository{db: db}
 }
 
-func (sr Sqlite3Repository) Create(model RequiringService) {
+func (sr Sqlite3Repository) Create(model RequiringService) error {
 	tx, err := sr.db.Begin()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
 
 	stmt, err := tx.Prepare("INSERT INTO requiring_service(rg_service, endpoint) VALUES(?, ?)")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(model.RgService, model.Endpoint)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		tx.Rollback()
+		return err
 	}
 	tx.Commit()
+	return nil
 }
 
-func (sr Sqlite3Repository) GetRgServicesByEndpoint(endpoint string) (rgServices []string) {
+func (sr Sqlite3Repository) GetRgServicesByEndpoint(endpoint string) ([]string, error) {
 	stmt, err := sr.db.Prepare("SELECT rg_service FROM requiring_service WHERE endpoint = ?")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return nil, err
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query(endpoint)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return nil, err
 	}
 
+	var rgServices []string
 	for rows.Next() {
 		var rgService string
 		err = rows.Scan(&rgService)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			return nil, err
 		}
 
 		rgServices = append(rgServices, rgService)
 	}
-	return rgServices
+	return rgServices, nil
 }
 
-func (sr Sqlite3Repository) GetDependencyMapByEndpoints(endpoints []string) map[string][]string {
+func (sr Sqlite3Repository) GetDependencyMapByEndpoints(endpoints []string) (map[string][]string, error) {
 	stmt, err := sr.db.Prepare("SELECT rg_service FROM requiring_service WHERE endpoint = ?")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return nil, err
 	}
 	defer stmt.Close()
 
@@ -69,14 +79,16 @@ func (sr Sqlite3Repository) GetDependencyMapByEndpoints(endpoints []string) map[
 	for _, endpoint := range endpoints {
 		rows, err := stmt.Query(endpoint)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			return nil, err
 		}
 
 		for rows.Next() {
 			var rgService string
 			err = rows.Scan(&rgService)
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
+				return nil, err
 			}
 
 			if _, ok := dependencyMap[rgService]; ok {
@@ -86,5 +98,5 @@ func (sr Sqlite3Repository) GetDependencyMapByEndpoints(endpoints []string) map[
 			}
 		}
 	}
-	return dependencyMap
+	return dependencyMap, nil
 }

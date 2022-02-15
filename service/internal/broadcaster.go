@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"errors"
 	"log"
 
 	"golang.org/x/net/context"
@@ -9,12 +10,13 @@ import (
 	pb "github.com/naufal-dean/ccb/protobuf"
 )
 
-func BroadcastOpenCircuits(currServiceName, targetServiceAddr string, endpoints []string) {
+func BroadcastOpenCircuits(currServiceName, targetServiceAddr string, endpoints []string) error {
 	log.Println("Exec: BroadcastOpenCircuits")
 
 	conn, err := grpc.Dial(targetServiceAddr, grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("Failed to dial: %v", err)
+		log.Printf("Failed to dial: %v\n", err)
+		return errors.New("failed to dial")
 	}
 	defer conn.Close()
 
@@ -25,16 +27,19 @@ func BroadcastOpenCircuits(currServiceName, targetServiceAddr string, endpoints 
 		Endpoints: endpoints,
 	})
 	if err != nil {
-		log.Fatalf("Failed to request to server: %v", err)
+		log.Printf("Failed to request to server: %v\n", err)
+		return errors.New("failed to request to server")
 	}
+	return nil
 }
 
-func BroadcastCloseCircuits(currServiceName, targetServiceAddr string, endpoints []string) {
+func BroadcastCloseCircuits(currServiceName, targetServiceAddr string, endpoints []string) error {
 	log.Println("Exec: BroadcastCloseCircuits")
 
 	conn, err := grpc.Dial(targetServiceAddr, grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("Failed to dial: %v", err)
+		log.Printf("Failed to dial: %v\n", err)
+		return errors.New("failed to dial")
 	}
 	defer conn.Close()
 
@@ -45,6 +50,8 @@ func BroadcastCloseCircuits(currServiceName, targetServiceAddr string, endpoints
 		Endpoints: endpoints,
 	})
 	if err != nil {
-		log.Fatalf("Failed to request to server: %v", err)
+		log.Printf("Failed to request to server: %v\n", err)
+		return errors.New("failed to request to server")
 	}
+	return nil
 }
