@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+	"strconv"
 
 	"google.golang.org/grpc"
 
@@ -12,11 +14,29 @@ import (
 	listenerservice "github.com/naufal-dean/ccb/service/listener"
 )
 
+func getEnv(key, defaultValue string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return defaultValue
+}
+
+func getEnvInt(key string, defaultValue int) int {
+	if value, ok := os.LookupEnv(key); ok {
+		valueInt, err := strconv.Atoi(value)
+		if err != nil {
+			return defaultValue
+		}
+		return valueInt
+	}
+	return defaultValue
+}
+
 func main() {
-	port := flag.Int("port", 50051, "The server port")
-	// TODO: get service name from env config
-	serviceName := flag.String("name", "localhost:50051", "This service name on Kube DNS")
-	dbPath := flag.String("dbpath", "", "The server sqlite3 db path")
+	// TODO: load env file config if needed
+	port := flag.Int("port", getEnvInt("CCB_PORT", 50051), "The server port")
+	serviceName := flag.String("name", getEnv("CCB_SERVICE_NAME", "localhost:50051"), "This service name on Kube DNS")
+	dbPath := flag.String("dbpath", getEnv("CCB_DB_PATH", ""), "The server sqlite3 db path")
 
 	flag.Parse()
 	addr := fmt.Sprintf(":%d", *port)
