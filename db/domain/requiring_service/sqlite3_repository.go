@@ -22,7 +22,7 @@ func (sr Sqlite3Repository) Create(model RequiringService) error {
 		return err
 	}
 
-	stmt, err := tx.Prepare("INSERT INTO requiring_service(rg_service, endpoint) VALUES(?, ?)")
+	stmt, err := tx.Prepare("INSERT OR IGNORE INTO requiring_service(rg_service, endpoint) VALUES(?, ?)")
 	if err != nil {
 		log.Println(err)
 		return err
