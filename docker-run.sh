@@ -3,7 +3,7 @@ set -euox pipefail
 
 IMAGE_NAME="ccb:multistage"
 
-if [[ "$#" -ge 1 ]] && [[ -n "$1" ]] && [[ "$1" =~ b* ]]; then
+if [[ "$#" -ge 1 ]] && [[ -n "$1" ]] && [[ "$1" =~ b.* ]]; then
   docker build --tag "$IMAGE_NAME" .
 fi
 
