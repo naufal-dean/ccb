@@ -22,14 +22,14 @@ func (sr Sqlite3Repository) Create(model RequiringService) error {
 		return err
 	}
 
-	stmt, err := tx.Prepare("INSERT OR IGNORE INTO requiring_service(rg_service, endpoint) VALUES(?, ?)")
+	stmt, err := tx.Prepare("INSERT OR IGNORE INTO requiring_service(rg_service, service, endpoint) VALUES(?, ?, ?)")
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(model.RgService, model.Endpoint)
+	_, err = stmt.Exec(model.RgService, model.Service, model.Endpoint)
 	if err != nil {
 		log.Println(err)
 		tx.Rollback()
@@ -68,7 +68,7 @@ func (sr Sqlite3Repository) GetRgServicesByEndpoint(endpoint string) ([]string, 
 }
 
 func (sr Sqlite3Repository) GetDependencyMapByEndpoints(endpoints []string) (map[string][]string, error) {
-	stmt, err := sr.db.Prepare("SELECT rg_service FROM requiring_service WHERE endpoint = ?")
+	stmt, err := sr.db.Prepare("SELECT rg_service, service FROM requiring_service WHERE endpoint = ?")
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -84,8 +84,8 @@ func (sr Sqlite3Repository) GetDependencyMapByEndpoints(endpoints []string) (map
 		}
 
 		for rows.Next() {
-			var rgService string
-			err = rows.Scan(&rgService)
+			var rgService, service string
+			err = rows.Scan(&rgService, &service)
 			if err != nil {
 				log.Println(err)
 				return nil, err
