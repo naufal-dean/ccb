@@ -5,6 +5,8 @@ import (
 	"log"
 
 	_ "github.com/mattn/go-sqlite3"
+
+	"github.com/naufal-dean/ccb/lib/utils"
 )
 
 type Sqlite3Repository struct {
@@ -40,7 +42,7 @@ func (sr Sqlite3Repository) Create(model RequiredService) error {
 }
 
 func (sr Sqlite3Repository) GetEndpointsByRdService(rdService string) ([]string, error) {
-	stmt, err := sr.db.Prepare("SELECT endpoint FROM required_service WHERE rd_service = ?")
+	stmt, err := sr.db.Prepare("SELECT DISTINCT endpoint FROM required_service WHERE rd_service = ?")
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -75,7 +77,7 @@ func (sr Sqlite3Repository) GetEndpointsByRdServiceAndRdEndpoints(rdService stri
 	}
 	defer stmt.Close()
 
-	var endpoints []string
+	endpointsSet := make(map[string]bool)
 	for _, rdEndpoint := range rdEndpoints {
 		rows, err := stmt.Query(rdService, rdEndpoint)
 		if err != nil {
@@ -91,8 +93,8 @@ func (sr Sqlite3Repository) GetEndpointsByRdServiceAndRdEndpoints(rdService stri
 				return nil, err
 			}
 
-			endpoints = append(endpoints, endpoint)
+			endpointsSet[endpoint] = true
 		}
 	}
-	return endpoints, nil
+	return utils.GetMapKeys(endpointsSet), nil
 }
