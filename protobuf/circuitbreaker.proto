@@ -60,9 +60,8 @@ service Http {
 }
 
 message ServiceEndpoints {
-    string service = 1;
-    repeated string services = 2;
-    repeated string endpoints = 3;
+    repeated string services = 1;
+    repeated string endpoints = 2;
 }
 
 service Listener {
