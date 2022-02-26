@@ -2,6 +2,7 @@ package http
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -33,8 +34,8 @@ func doRequestHelper(method, url string, body []byte, header map[string]string, 
 	// Inject header metadata
 	if reqUrl != nil && serviceName != nil {
 		req.Header.Set(requiringServiceHeader, *serviceName)
-		req.Header.Set(currentEndpointHeader, reqUrl.Path)
-		req.Header.Set(currentMethodHeader, method)
+		req.Header.Set(currentServiceHeader, reqUrl.Host)
+		req.Header.Set(currentEndpointHeader, fmt.Sprintf("%s:%s", method, reqUrl.Path))
 	}
 
 	res, err := client.Do(req)

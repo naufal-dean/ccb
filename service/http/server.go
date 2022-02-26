@@ -1,6 +1,7 @@
 package http
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -47,8 +48,7 @@ func (s HttpServer) storeDependency(targetUrl string, initialHeader map[string]s
 
 func (s HttpServer) isCircuitOpen(method, service, endpoint string) bool {
 	// Return true then API call will be cancelled, vice versa
-	// TODO: add method column condition
-	statusModels, err := s.app.Repositories.Status.GetByRdServiceAndRdEndpoint(service, endpoint)
+	statusModels, err := s.app.Repositories.Status.GetByRdServiceAndRdEndpoint(service, fmt.Sprintf("%s:%s", method, endpoint))
 	// If any db error, then allow the request (assume that the circuit closed)
 	return err == nil && statusModels != nil
 }

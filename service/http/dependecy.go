@@ -12,15 +12,19 @@ func buildDependency(requiredService, requiredEndpoint string, initialHeader map
 	if !ok {
 		return nil, nil, false
 	}
+	currentService, ok := initialHeader[currentServiceHeader]
+	if !ok {
+		return nil, nil, false
+	}
 	currentEndpoint, ok := initialHeader[currentEndpointHeader]
 	if !ok {
 		return nil, nil, false
 	}
-	// TODO: check http method in header
 
 	// Create models
 	requiringServiceModel := &requiring_service.RequiringService{
 		RgService: requiringService,
+		Service:   currentService,
 		Endpoint:  currentEndpoint,
 	}
 	requiredServiceModel := &required_service.RequiredService{
