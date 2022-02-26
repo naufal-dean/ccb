@@ -11,7 +11,7 @@ import (
 )
 
 func BroadcastOpenCircuits(currServiceName, targetServiceAddr string, endpoints []string) error {
-	log.Println("Exec: BroadcastOpenCircuits")
+	log.Printf("Exec: BroadcastOpenCircuits: %s, %s, %v\n", currServiceName, targetServiceAddr, endpoints)
 
 	conn, err := grpc.Dial(targetServiceAddr, grpc.WithInsecure())
 	if err != nil {
@@ -34,7 +34,7 @@ func BroadcastOpenCircuits(currServiceName, targetServiceAddr string, endpoints 
 }
 
 func BroadcastCloseCircuits(currServiceName, targetServiceAddr string, endpoints []string) error {
-	log.Println("Exec: BroadcastCloseCircuits")
+	log.Printf("Exec: BroadcastCloseCircuits: %s, %s, %v\n", currServiceName, targetServiceAddr, endpoints)
 
 	conn, err := grpc.Dial(targetServiceAddr, grpc.WithInsecure())
 	if err != nil {

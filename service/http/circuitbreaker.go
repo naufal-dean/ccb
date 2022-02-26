@@ -5,11 +5,12 @@ import (
 	"time"
 
 	"github.com/naufal-dean/ccb/lib/circuitbreaker"
+	"github.com/naufal-dean/ccb/service/internal"
 )
 
 var cbs = make(map[string]*circuitbreaker.CircuitBreaker)
 
-func getCircuitBreaker(name string) *circuitbreaker.CircuitBreaker {
+func (s HttpServer) getCircuitBreaker(name string) *circuitbreaker.CircuitBreaker {
 	if cb, ok := cbs[name]; ok {
 		return cb
 	}
@@ -23,6 +24,33 @@ func getCircuitBreaker(name string) *circuitbreaker.CircuitBreaker {
 		Timeout: time.Duration(60) * time.Second,
 		OnStateChange: func(name string, from circuitbreaker.State, to circuitbreaker.State) {
 			log.Printf("OnChangeState: %s, %v, %v\n", name, from, to)
+			// Get affected endpoint (only broadcast new created rd endpoints)
+			endpoints, err := s.app.Repositories.RequiredService.GetEndpointsByRdService(name)
+			if err != nil {
+				return
+			}
+			// Get affected requiring service
+			dependencyMap, err := s.app.Repositories.RequiringService.GetDependencyMapByEndpoints(endpoints)
+			if err != nil {
+				return
+			}
+			// Broadcast status
+			switch to {
+			case circuitbreaker.StateOpen:
+				for serviceAddr, endpoints := range dependencyMap {
+					err := internal.BroadcastOpenCircuits(s.app.ServiceName, serviceAddr, endpoints)
+					if err != nil {
+						log.Printf("OpenCircuits: error on BroadcastOpenCircuits to %s: %v\n", serviceAddr, err)
+					}
+				}
+			case circuitbreaker.StateClosed:
+				for serviceAddr, endpoints := range dependencyMap {
+					err := internal.BroadcastCloseCircuits(s.app.ServiceName, serviceAddr, endpoints)
+					if err != nil {
+						log.Printf("CloseCircuits: error on BroadcastCloseCircuits to %s: %v\n", serviceAddr, err)
+					}
+				}
+			}
 		},
 	}
 

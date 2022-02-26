@@ -7,8 +7,8 @@ import (
 	"net/url"
 )
 
-func doRequest(method, url string, body []byte, header map[string]string, serviceName *string, reqUrl *url.URL) (*http.Response, error) {
-	cb := getCircuitBreaker(reqUrl.Host)
+func (s HttpServer) doRequest(method, url string, body []byte, header map[string]string, serviceName *string, reqUrl *url.URL) (*http.Response, error) {
+	cb := s.getCircuitBreaker(reqUrl.Host)
 
 	res, err := cb.Execute(func() (interface{}, error) {
 		return doRequestHelper(method, url, body, header, serviceName, reqUrl)

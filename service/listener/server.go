@@ -47,7 +47,9 @@ func (s ListenerServer) OpenCircuits(ctx context.Context, input *pb.ServiceEndpo
 	// Broadcast status
 	for serviceAddr, endpoints := range dependencyMap {
 		err := internal.BroadcastOpenCircuits(s.app.ServiceName, serviceAddr, endpoints)
-		log.Printf("OpenCircuits: error on BroadcastOpenCircuits to %s: %v\n", serviceAddr, err)
+		if err != nil {
+			log.Printf("OpenCircuits: error on BroadcastOpenCircuits to %s: %v\n", serviceAddr, err)
+		}
 	}
 	return new(empty.Empty), nil
 }
@@ -72,7 +74,9 @@ func (s ListenerServer) CloseCircuits(ctx context.Context, input *pb.ServiceEndp
 	// Broadcast status
 	for serviceAddr, endpoints := range dependencyMap {
 		err := internal.BroadcastCloseCircuits(s.app.ServiceName, serviceAddr, endpoints)
-		log.Printf("CloseCircuits: error on BroadcastCloseCircuits to %s: %v\n", serviceAddr, err)
+		if err != nil {
+			log.Printf("CloseCircuits: error on BroadcastCloseCircuits to %s: %v\n", serviceAddr, err)
+		}
 	}
 	return new(empty.Empty), nil
 }

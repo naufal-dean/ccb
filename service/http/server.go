@@ -61,7 +61,7 @@ func (s HttpServer) Request(ctx context.Context, input *pb.RequestInput) (*pb.Re
 		return new(pb.Response), status.Error(codes.Aborted, "Request cancelled due to opened circuit")
 	}
 
-	res, err := doRequest(input.Method, input.Url, input.Body, input.Header, &s.app.ServiceName, reqUrl)
+	res, err := s.doRequest(input.Method, input.Url, input.Body, input.Header, &s.app.ServiceName, reqUrl)
 	if err != nil {
 		return new(pb.Response), status.Error(codes.Internal, "Failed to execute the request")
 	}
@@ -78,7 +78,7 @@ func (s HttpServer) Get(ctx context.Context, input *pb.GetInput) (*pb.Response, 
 		return new(pb.Response), status.Error(codes.Aborted, "Request cancelled due to opened circuit")
 	}
 
-	res, err := doRequest(http.MethodGet, input.Url, nil, input.Header, &s.app.ServiceName, reqUrl)
+	res, err := s.doRequest(http.MethodGet, input.Url, nil, input.Header, &s.app.ServiceName, reqUrl)
 	if err != nil {
 		return new(pb.Response), status.Error(codes.Internal, "Failed to execute the request")
 	}
@@ -95,7 +95,7 @@ func (s HttpServer) Post(ctx context.Context, input *pb.PostInput) (*pb.Response
 		return new(pb.Response), status.Error(codes.Aborted, "Request cancelled due to opened circuit")
 	}
 
-	res, err := doRequest(http.MethodPost, input.Url, input.Body, input.Header, &s.app.ServiceName, reqUrl)
+	res, err := s.doRequest(http.MethodPost, input.Url, input.Body, input.Header, &s.app.ServiceName, reqUrl)
 	if err != nil {
 		return new(pb.Response), status.Error(codes.Internal, "Failed to execute the request")
 	}
@@ -112,7 +112,7 @@ func (s HttpServer) Put(ctx context.Context, input *pb.PutInput) (*pb.Response, 
 		return new(pb.Response), status.Error(codes.Aborted, "Request cancelled due to opened circuit")
 	}
 
-	res, err := doRequest(http.MethodPut, input.Url, input.Body, input.Header, &s.app.ServiceName, reqUrl)
+	res, err := s.doRequest(http.MethodPut, input.Url, input.Body, input.Header, &s.app.ServiceName, reqUrl)
 	if err != nil {
 		return new(pb.Response), status.Error(codes.Internal, "Failed to execute the request")
 	}
@@ -129,7 +129,7 @@ func (s HttpServer) Delete(ctx context.Context, input *pb.DeleteInput) (*pb.Resp
 		return new(pb.Response), status.Error(codes.Aborted, "Request cancelled due to opened circuit")
 	}
 
-	res, err := doRequest(http.MethodDelete, input.Url, nil, input.Header, &s.app.ServiceName, reqUrl)
+	res, err := s.doRequest(http.MethodDelete, input.Url, nil, input.Header, &s.app.ServiceName, reqUrl)
 	if err != nil {
 		return new(pb.Response), status.Error(codes.Internal, "Failed to execute the request")
 	}
