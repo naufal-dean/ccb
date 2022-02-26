@@ -69,7 +69,38 @@ func (sr Sqlite3Repository) GetEndpointsByRdService(rdService string) ([]string,
 	return endpoints, nil
 }
 
-func (sr Sqlite3Repository) GetEndpointsByRdServiceAndRdEndpoints(rdService string, rdEndpoints []string) ([]string, error) {
+func (sr Sqlite3Repository) GetEndpointsByRdServiceAndRdEndpoints(rdServices, rdEndpoints []string) ([]string, error) {
+	stmt, err := sr.db.Prepare("SELECT endpoint FROM required_service WHERE rd_service = ? AND rd_endpoint = ?")
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer stmt.Close()
+
+	endpointsSet := make(map[string]bool)
+	for i := range rdEndpoints {
+		rows, err := stmt.Query(rdServices[i], rdEndpoints[i])
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+
+		for rows.Next() {
+			var endpoint string
+			err = rows.Scan(&endpoint)
+			if err != nil {
+				log.Println(err)
+				return nil, err
+			}
+
+			endpointsSet[endpoint] = true
+		}
+	}
+	return utils.GetMapKeys(endpointsSet), nil
+}
+
+func (sr Sqlite3Repository) oldGetEndpointsByRdServiceAndRdEndpoints(rdService string, rdEndpoints []string) ([]string, error) {
+	// Deprecated
 	stmt, err := sr.db.Prepare("SELECT endpoint FROM required_service WHERE rd_service = ? AND rd_endpoint = ?")
 	if err != nil {
 		log.Println(err)

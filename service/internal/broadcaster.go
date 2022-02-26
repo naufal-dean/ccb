@@ -10,8 +10,12 @@ import (
 	pb "github.com/naufal-dean/ccb/protobuf"
 )
 
-func BroadcastOpenCircuits(currServiceName, targetServiceAddr string, endpoints []string) error {
-	log.Printf("Exec: BroadcastOpenCircuits: %s, %s, %v\n", currServiceName, targetServiceAddr, endpoints)
+func BroadcastOpenCircuits(targetServiceAddr string, services, endpoints []string) error {
+	log.Printf("Exec: BroadcastOpenCircuits: %s, %v, %v\n", targetServiceAddr, services, endpoints)
+
+	if len(services) != len(endpoints) {
+		return errors.New("services and endpoints array not in the same length")
+	}
 
 	conn, err := grpc.Dial(targetServiceAddr, grpc.WithInsecure())
 	if err != nil {
@@ -23,7 +27,7 @@ func BroadcastOpenCircuits(currServiceName, targetServiceAddr string, endpoints 
 	client := pb.NewListenerClient(conn)
 
 	_, err = client.OpenCircuits(context.Background(), &pb.ServiceEndpoints{
-		Service:   currServiceName,
+		Services:  services,
 		Endpoints: endpoints,
 	})
 	if err != nil {
@@ -33,8 +37,12 @@ func BroadcastOpenCircuits(currServiceName, targetServiceAddr string, endpoints 
 	return nil
 }
 
-func BroadcastCloseCircuits(currServiceName, targetServiceAddr string, endpoints []string) error {
-	log.Printf("Exec: BroadcastCloseCircuits: %s, %s, %v\n", currServiceName, targetServiceAddr, endpoints)
+func BroadcastCloseCircuits(targetServiceAddr string, services, endpoints []string) error {
+	log.Printf("Exec: BroadcastCloseCircuits: %s, %v, %v\n", targetServiceAddr, services, endpoints)
+
+	if len(services) != len(endpoints) {
+		return errors.New("services and endpoints array not in the same length")
+	}
 
 	conn, err := grpc.Dial(targetServiceAddr, grpc.WithInsecure())
 	if err != nil {
@@ -46,7 +54,7 @@ func BroadcastCloseCircuits(currServiceName, targetServiceAddr string, endpoints
 	client := pb.NewListenerClient(conn)
 
 	_, err = client.CloseCircuits(context.Background(), &pb.ServiceEndpoints{
-		Service:   currServiceName,
+		Services:  services,
 		Endpoints: endpoints,
 	})
 	if err != nil {

@@ -29,24 +29,28 @@ func (s *ListenerServer) Register(sr grpc.ServiceRegistrar) {
 
 func (s ListenerServer) OpenCircuits(ctx context.Context, input *pb.ServiceEndpoints) (*empty.Empty, error) {
 	log.Println("Received request: OpenCircuits")
+	// Validate input
+	if len(input.Services) != len(input.Endpoints) {
+		return new(empty.Empty), status.Error(codes.InvalidArgument, "Input for services and endpoints are differ in length")
+	}
 	// Store status
-	createdRdEndpoints, err := s.app.Repositories.Status.CreateFromOneRdServiceAndManyRdEndpoints(input.Service, input.Endpoints, "OPEN")
+	createdRdServices, createdRdEndpoints, err := s.app.Repositories.Status.CreateFromOneRdServiceAndManyRdEndpoints(input.Services, input.Endpoints, "OPEN")
 	if err != nil {
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to store open circuits data")
 	}
 	// Get affected endpoint (only broadcast new created rd endpoints)
-	endpoints, err := s.app.Repositories.RequiredService.GetEndpointsByRdServiceAndRdEndpoints(input.Service, createdRdEndpoints)
+	endpoints, err := s.app.Repositories.RequiredService.GetEndpointsByRdServiceAndRdEndpoints(createdRdServices, createdRdEndpoints)
 	if err != nil {
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to get affected endpoint")
 	}
 	// Get affected requiring service
-	dependencyMap, err := s.app.Repositories.RequiringService.GetDependencyMapByEndpoints(endpoints)
+	serviceDepMap, endpointDepMap, err := s.app.Repositories.RequiringService.GetDependencyMapByEndpoints(endpoints)
 	if err != nil {
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to get affected requiring service")
 	}
 	// Broadcast status
-	for serviceAddr, endpoints := range dependencyMap {
-		err := internal.BroadcastOpenCircuits(s.app.ServiceName, serviceAddr, endpoints)
+	for serviceAddr := range serviceDepMap {
+		err := internal.BroadcastOpenCircuits(serviceAddr, serviceDepMap[serviceAddr], endpointDepMap[serviceAddr])
 		if err != nil {
 			log.Printf("OpenCircuits: error on BroadcastOpenCircuits to %s: %v\n", serviceAddr, err)
 		}
@@ -56,24 +60,28 @@ func (s ListenerServer) OpenCircuits(ctx context.Context, input *pb.ServiceEndpo
 
 func (s ListenerServer) CloseCircuits(ctx context.Context, input *pb.ServiceEndpoints) (*empty.Empty, error) {
 	log.Println("Received request: CloseCircuits")
+	// Validate input
+	if len(input.Services) != len(input.Endpoints) {
+		return new(empty.Empty), status.Error(codes.InvalidArgument, "Input for services and endpoints are differ in length")
+	}
 	// Store status
-	deletedRdEndpoints, err := s.app.Repositories.Status.DeleteWhereOneRdServiceAndManyRdEndpointsEqual(input.Service, input.Endpoints)
+	deletedRdServices, deletedRdEndpoints, err := s.app.Repositories.Status.DeleteWhereOneRdServiceAndManyRdEndpointsEqual(input.Services, input.Endpoints)
 	if err != nil {
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to remove open circuits data")
 	}
 	// Get affected endpoint (only broadcast new deleted rd endpoints)
-	endpoints, err := s.app.Repositories.RequiredService.GetEndpointsByRdServiceAndRdEndpoints(input.Service, deletedRdEndpoints)
+	endpoints, err := s.app.Repositories.RequiredService.GetEndpointsByRdServiceAndRdEndpoints(deletedRdServices, deletedRdEndpoints)
 	if err != nil {
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to get affected endpoint")
 	}
 	// Get affected requiring service
-	dependencyMap, err := s.app.Repositories.RequiringService.GetDependencyMapByEndpoints(endpoints)
+	serviceDepMap, endpointDepMap, err := s.app.Repositories.RequiringService.GetDependencyMapByEndpoints(endpoints)
 	if err != nil {
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to get affected requiring service")
 	}
 	// Broadcast status
-	for serviceAddr, endpoints := range dependencyMap {
-		err := internal.BroadcastCloseCircuits(s.app.ServiceName, serviceAddr, endpoints)
+	for serviceAddr := range serviceDepMap {
+		err := internal.BroadcastCloseCircuits(serviceAddr, serviceDepMap[serviceAddr], endpointDepMap[serviceAddr])
 		if err != nil {
 			log.Printf("CloseCircuits: error on BroadcastCloseCircuits to %s: %v\n", serviceAddr, err)
 		}

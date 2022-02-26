@@ -30,22 +30,22 @@ func (s HttpServer) getCircuitBreaker(name string) *circuitbreaker.CircuitBreake
 				return
 			}
 			// Get affected requiring service
-			dependencyMap, err := s.app.Repositories.RequiringService.GetDependencyMapByEndpoints(endpoints)
+			serviceDepMap, endpointDepMap, err := s.app.Repositories.RequiringService.GetDependencyMapByEndpoints(endpoints)
 			if err != nil {
 				return
 			}
 			// Broadcast status
 			switch to {
 			case circuitbreaker.StateOpen:
-				for serviceAddr, endpoints := range dependencyMap {
-					err := internal.BroadcastOpenCircuits(s.app.ServiceName, serviceAddr, endpoints)
+				for serviceAddr := range serviceDepMap {
+					err := internal.BroadcastOpenCircuits(serviceAddr, serviceDepMap[serviceAddr], endpointDepMap[serviceAddr])
 					if err != nil {
 						log.Printf("OpenCircuits: error on BroadcastOpenCircuits to %s: %v\n", serviceAddr, err)
 					}
 				}
 			case circuitbreaker.StateClosed:
-				for serviceAddr, endpoints := range dependencyMap {
-					err := internal.BroadcastCloseCircuits(s.app.ServiceName, serviceAddr, endpoints)
+				for serviceAddr := range serviceDepMap {
+					err := internal.BroadcastCloseCircuits(serviceAddr, serviceDepMap[serviceAddr], endpointDepMap[serviceAddr])
 					if err != nil {
 						log.Printf("CloseCircuits: error on BroadcastCloseCircuits to %s: %v\n", serviceAddr, err)
 					}
