@@ -116,7 +116,7 @@ func (sr Sqlite3Repository) GetByRdServiceAndRdEndpoint(rdService, rdEndpoint st
 	return models, nil
 }
 
-func (sr Sqlite3Repository) DeleteWhereOneRdServiceAndManyRdEndpointsEqual(rdServices, rdEndpoints []string) ([]string, []string, error) {
+func (sr Sqlite3Repository) DeleteWhereRdServicesAndRdEndpointsInSlice(rdServices, rdEndpoints []string) ([]string, []string, error) {
 	tx, err := sr.db.Begin()
 	if err != nil {
 		log.Println(err)

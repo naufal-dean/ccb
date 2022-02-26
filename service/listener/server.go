@@ -65,7 +65,7 @@ func (s ListenerServer) CloseCircuits(ctx context.Context, input *pb.ServiceEndp
 		return new(empty.Empty), status.Error(codes.InvalidArgument, "Input for services and endpoints are differ in length")
 	}
 	// Store status
-	deletedRdServices, deletedRdEndpoints, err := s.app.Repositories.Status.DeleteWhereOneRdServiceAndManyRdEndpointsEqual(input.Services, input.Endpoints)
+	deletedRdServices, deletedRdEndpoints, err := s.app.Repositories.Status.DeleteWhereRdServicesAndRdEndpointsInSlice(input.Services, input.Endpoints)
 	if err != nil {
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to remove open circuits data")
 	}
