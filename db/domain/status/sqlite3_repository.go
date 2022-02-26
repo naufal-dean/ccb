@@ -40,7 +40,7 @@ func (sr Sqlite3Repository) Create(model Status) error {
 	return nil
 }
 
-func (sr Sqlite3Repository) CreateFromOneRdServiceAndManyRdEndpoints(rdServices, rdEndpoints []string, status string) ([]string, []string, error) {
+func (sr Sqlite3Repository) CreateFromRdServicesAndRdEndpointsSlice(rdServices, rdEndpoints []string, status string) ([]string, []string, error) {
 	tx, err := sr.db.Begin()
 	if err != nil {
 		log.Println(err)

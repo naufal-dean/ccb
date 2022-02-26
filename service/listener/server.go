@@ -34,7 +34,7 @@ func (s ListenerServer) OpenCircuits(ctx context.Context, input *pb.ServiceEndpo
 		return new(empty.Empty), status.Error(codes.InvalidArgument, "Input for services and endpoints are differ in length")
 	}
 	// Store status
-	createdRdServices, createdRdEndpoints, err := s.app.Repositories.Status.CreateFromOneRdServiceAndManyRdEndpoints(input.Services, input.Endpoints, "OPEN")
+	createdRdServices, createdRdEndpoints, err := s.app.Repositories.Status.CreateFromRdServicesAndRdEndpointsSlice(input.Services, input.Endpoints, "OPEN")
 	if err != nil {
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to store open circuits data")
 	}
