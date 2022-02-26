@@ -92,7 +92,7 @@ func (sr Sqlite3Repository) GetDependencyMapByEndpoints(endpoints []string) (map
 			}
 
 			if _, ok := dependencyMap[rgService]; ok {
-				dependencyMap[rgService] = append(dependencyMap[rgService], rgService)
+				dependencyMap[rgService] = append(dependencyMap[rgService], endpoint)
 			} else {
 				dependencyMap[rgService] = []string{endpoint}
 			}
