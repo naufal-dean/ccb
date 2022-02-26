@@ -39,7 +39,7 @@ func (s ListenerServer) OpenCircuits(ctx context.Context, input *pb.ServiceEndpo
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to store open circuits data")
 	}
 	// Get affected endpoint (only broadcast new created rd endpoints)
-	endpoints, err := s.app.Repositories.RequiredService.GetEndpointsByRdServiceAndRdEndpoints(createdRdServices, createdRdEndpoints)
+	endpoints, err := s.app.Repositories.RequiredService.GetEndpointsByRdServicesAndRdEndpoints(createdRdServices, createdRdEndpoints)
 	if err != nil {
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to get affected endpoint")
 	}
@@ -70,7 +70,7 @@ func (s ListenerServer) CloseCircuits(ctx context.Context, input *pb.ServiceEndp
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to remove open circuits data")
 	}
 	// Get affected endpoint (only broadcast new deleted rd endpoints)
-	endpoints, err := s.app.Repositories.RequiredService.GetEndpointsByRdServiceAndRdEndpoints(deletedRdServices, deletedRdEndpoints)
+	endpoints, err := s.app.Repositories.RequiredService.GetEndpointsByRdServicesAndRdEndpoints(deletedRdServices, deletedRdEndpoints)
 	if err != nil {
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to get affected endpoint")
 	}

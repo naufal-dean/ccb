@@ -69,7 +69,7 @@ func (sr Sqlite3Repository) GetEndpointsByRdService(rdService string) ([]string,
 	return endpoints, nil
 }
 
-func (sr Sqlite3Repository) GetEndpointsByRdServiceAndRdEndpoints(rdServices, rdEndpoints []string) ([]string, error) {
+func (sr Sqlite3Repository) GetEndpointsByRdServicesAndRdEndpoints(rdServices, rdEndpoints []string) ([]string, error) {
 	stmt, err := sr.db.Prepare("SELECT endpoint FROM required_service WHERE rd_service = ? AND rd_endpoint = ?")
 	if err != nil {
 		log.Println(err)
