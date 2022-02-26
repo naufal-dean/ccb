@@ -10,8 +10,9 @@ CREATE TABLE status (
 -- TODO: add method column
 CREATE TABLE requiring_service (
    rg_service TEXT NOT NULL,
+   service TEXT NOT NULL,
    endpoint TEXT NOT NULL,
-   PRIMARY KEY (rg_service, endpoint)
+   PRIMARY KEY (rg_service, service, endpoint)
 );
 
 -- TODO: Check if primary key order affect performance
