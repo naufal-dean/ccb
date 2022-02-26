@@ -4,9 +4,22 @@ import (
 	"bytes"
 	"log"
 	"net/http"
+	"net/url"
 )
 
-func doRequest(method, url string, body []byte, header map[string]string, serviceName, targetEndpoint *string) (*http.Response, error) {
+func doRequest(method, url string, body []byte, header map[string]string, serviceName *string, reqUrl *url.URL) (*http.Response, error) {
+	cb := getCircuitBreaker(reqUrl.Host)
+
+	res, err := cb.Execute(func() (interface{}, error) {
+		return doRequestHelper(method, url, body, header, serviceName, reqUrl)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return res.(*http.Response), nil
+}
+
+func doRequestHelper(method, url string, body []byte, header map[string]string, serviceName *string, reqUrl *url.URL) (*http.Response, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(body))
 	if err != nil {
@@ -18,9 +31,9 @@ func doRequest(method, url string, body []byte, header map[string]string, servic
 		req.Header.Set(k, v)
 	}
 	// Inject header metadata
-	if targetEndpoint != nil && serviceName != nil {
+	if reqUrl != nil && serviceName != nil {
 		req.Header.Set(requiringServiceHeader, *serviceName)
-		req.Header.Set(currentEndpointHeader, *targetEndpoint)
+		req.Header.Set(currentEndpointHeader, reqUrl.Path)
 		req.Header.Set(currentMethodHeader, method)
 	}
 

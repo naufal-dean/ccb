@@ -1,7 +1,7 @@
 // Package gobreaker implements the Circuit Breaker pattern.
 // See https://msdn.microsoft.com/en-us/library/dn589784.aspx.
 //
-// Modified from https://github.com/sony/gobreaker
+// Source: https://github.com/sony/gobreaker
 package circuitbreaker
 
 import (
