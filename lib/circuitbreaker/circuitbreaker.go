@@ -222,6 +222,14 @@ func (cb *CircuitBreaker) Counts() Counts {
 	return cb.counts
 }
 
+// Expiry returns current expiry time
+func (cb *CircuitBreaker) Expiry() time.Time {
+	cb.mutex.Lock()
+	defer cb.mutex.Unlock()
+
+	return cb.expiry
+}
+
 // Execute runs the given request if the CircuitBreaker accepts it.
 // Execute returns an error instantly if the CircuitBreaker rejects the request.
 // Otherwise, Execute returns the result of the request.
