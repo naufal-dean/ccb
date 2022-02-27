@@ -2,6 +2,7 @@ package listener
 
 import (
 	"log"
+	"time"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"golang.org/x/net/context"
@@ -29,12 +30,17 @@ func (s *ListenerServer) Register(sr grpc.ServiceRegistrar) {
 
 func (s ListenerServer) OpenCircuits(ctx context.Context, input *pb.ServiceEndpoints) (*empty.Empty, error) {
 	log.Println("Received request: OpenCircuits")
+	// Get current time
+	now := time.Now().UnixMilli()
 	// Validate input
+	if input.Expiry <= now {
+		return new(empty.Empty), status.Error(codes.InvalidArgument, "Input already expired")
+	}
 	if len(input.Services) != len(input.Endpoints) {
 		return new(empty.Empty), status.Error(codes.InvalidArgument, "Input for services and endpoints are differ in length")
 	}
 	// Store status
-	createdRdServices, createdRdEndpoints, err := s.app.Repositories.Status.CreateFromRdServicesAndRdEndpointsSlice(input.Services, input.Endpoints, "OPEN")
+	createdRdServices, createdRdEndpoints, err := s.app.Repositories.Status.CreateFromRdServicesAndRdEndpointsSlice(input.Services, input.Endpoints, "OPEN", input.Expiry)
 	if err != nil {
 		return new(empty.Empty), status.Error(codes.Internal, "Failed to store open circuits data")
 	}
@@ -50,7 +56,7 @@ func (s ListenerServer) OpenCircuits(ctx context.Context, input *pb.ServiceEndpo
 	}
 	// Broadcast status
 	for serviceAddr := range serviceDepMap {
-		err := internal.BroadcastOpenCircuits(serviceAddr, serviceDepMap[serviceAddr], endpointDepMap[serviceAddr])
+		err := internal.BroadcastOpenCircuits(serviceAddr, serviceDepMap[serviceAddr], endpointDepMap[serviceAddr], input.Expiry)
 		if err != nil {
 			log.Printf("OpenCircuits: error on BroadcastOpenCircuits to %s: %v\n", serviceAddr, err)
 		}

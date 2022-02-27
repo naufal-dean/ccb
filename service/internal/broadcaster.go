@@ -10,7 +10,7 @@ import (
 	pb "github.com/naufal-dean/ccb/protobuf"
 )
 
-func BroadcastOpenCircuits(targetServiceAddr string, services, endpoints []string) error {
+func BroadcastOpenCircuits(targetServiceAddr string, services, endpoints []string, expiry int64) error {
 	log.Printf("Exec: BroadcastOpenCircuits: %s, %v, %v\n", targetServiceAddr, services, endpoints)
 
 	if len(services) != len(endpoints) {
@@ -29,6 +29,7 @@ func BroadcastOpenCircuits(targetServiceAddr string, services, endpoints []strin
 	_, err = client.OpenCircuits(context.Background(), &pb.ServiceEndpoints{
 		Services:  services,
 		Endpoints: endpoints,
+		Expiry:    expiry,
 	})
 	if err != nil {
 		log.Printf("Failed to request to server: %v\n", err)
