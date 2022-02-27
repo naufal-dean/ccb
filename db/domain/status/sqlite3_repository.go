@@ -3,6 +3,7 @@ package status
 import (
 	"database/sql"
 	"log"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -22,14 +23,14 @@ func (sr Sqlite3Repository) Create(model Status) error {
 		return err
 	}
 
-	stmt, err := tx.Prepare("INSERT INTO status(rd_service, rd_endpoint, status) VALUES(?, ?, ?)")
+	stmt, err := tx.Prepare("INSERT INTO status(rd_service, rd_endpoint, status, expiry) VALUES(?, ?, ?, ?)")
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(model.RdService, model.RdEndpoint, model.Status)
+	_, err = stmt.Exec(model.RdService, model.RdEndpoint, model.Status, model.Expiry)
 	if err != nil {
 		log.Println(err)
 		tx.Rollback()
@@ -40,10 +41,28 @@ func (sr Sqlite3Repository) Create(model Status) error {
 	return nil
 }
 
-func (sr Sqlite3Repository) CreateFromRdServicesAndRdEndpointsSlice(rdServices, rdEndpoints []string, status string) ([]string, []string, error) {
+func (sr Sqlite3Repository) CreateFromRdServicesAndRdEndpointsSlice(rdServices, rdEndpoints []string, status string, expiry int64) ([]string, []string, error) {
+	// Get current time
+	now := time.Now().UnixMilli()
+
 	tx, err := sr.db.Begin()
 	if err != nil {
 		log.Println(err)
+		return nil, nil, err
+	}
+
+	// Delete expired row
+	delStmt, err := tx.Prepare("DELETE FROM status WHERE expiry <= ?")
+	if err != nil {
+		log.Println(err)
+		return nil, nil, err
+	}
+	defer delStmt.Close()
+
+	_, err = delStmt.Exec(now)
+	if err != nil {
+		log.Println(err)
+		tx.Rollback()
 		return nil, nil, err
 	}
 
@@ -54,7 +73,7 @@ func (sr Sqlite3Repository) CreateFromRdServicesAndRdEndpointsSlice(rdServices, 
 	}
 	defer checkStmt.Close()
 
-	stmt, err := tx.Prepare("INSERT INTO status(rd_service, rd_endpoint, status) VALUES(?, ?, ?)")
+	stmt, err := tx.Prepare("INSERT INTO status(rd_service, rd_endpoint, status, expiry) VALUES(?, ?, ?, ?)")
 	if err != nil {
 		log.Println(err)
 		return nil, nil, err
@@ -74,7 +93,7 @@ func (sr Sqlite3Repository) CreateFromRdServicesAndRdEndpointsSlice(rdServices, 
 			continue
 		}
 		// Here the row to be created is guaranteed to be unique (PK pair not already exists)
-		_, err = stmt.Exec(rdService, rdEndpoint, status)
+		_, err = stmt.Exec(rdService, rdEndpoint, status, expiry)
 		if err != nil {
 			log.Println(err)
 			tx.Rollback()
@@ -89,14 +108,17 @@ func (sr Sqlite3Repository) CreateFromRdServicesAndRdEndpointsSlice(rdServices, 
 }
 
 func (sr Sqlite3Repository) GetByRdServiceAndRdEndpoint(rdService, rdEndpoint string) ([]*Status, error) {
-	stmt, err := sr.db.Prepare("SELECT rd_service, rd_endpoint, status FROM status WHERE rd_service = ? AND rd_endpoint = ?")
+	// Get current time
+	now := time.Now().UnixMilli()
+
+	stmt, err := sr.db.Prepare("SELECT rd_service, rd_endpoint, status, expiry FROM status WHERE rd_service = ? AND rd_endpoint = ? AND expiry > ?")
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(rdService, rdEndpoint)
+	rows, err := stmt.Query(rdService, rdEndpoint, now)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -105,7 +127,7 @@ func (sr Sqlite3Repository) GetByRdServiceAndRdEndpoint(rdService, rdEndpoint st
 	var models []*Status
 	for rows.Next() {
 		model := &Status{}
-		err = rows.Scan(&model.RdService, &model.RdEndpoint, &model.Status)
+		err = rows.Scan(&model.RdService, &model.RdEndpoint, &model.Status, &model.Expiry)
 		if err != nil {
 			log.Println(err)
 			return nil, err

@@ -8,4 +8,5 @@ type Status struct {
 	RdService  string
 	RdEndpoint string
 	Status     string
+	Expiry     int64
 }
