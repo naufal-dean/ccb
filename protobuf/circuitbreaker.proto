@@ -62,6 +62,7 @@ service Http {
 message ServiceEndpoints {
     repeated string services = 1;
     repeated string endpoints = 2;
+    int64 expiry = 3;
 }
 
 service Listener {
