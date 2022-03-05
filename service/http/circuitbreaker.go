@@ -19,7 +19,7 @@ func (s HttpServer) getCircuitBreaker(name string) *circuitbreaker.CircuitBreake
 		Name: name,
 		ReadyToTrip: func(counts circuitbreaker.Counts) bool {
 			failureRatio := float64(counts.TotalFailures) / float64(counts.Requests)
-			return counts.Requests >= 3 && failureRatio >= 0.75
+			return (counts.Requests >= 3 && failureRatio >= 0.75) || counts.ConsecutiveFailures > 5
 		},
 		Timeout: time.Duration(60) * time.Second,
 		OnStateChange: func(name string, from circuitbreaker.State, to circuitbreaker.State, expiry time.Time) {
