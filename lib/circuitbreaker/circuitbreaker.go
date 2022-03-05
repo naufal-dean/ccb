@@ -99,20 +99,23 @@ func (c *Counts) clear() {
 // If ReadyToTrip is nil, default ReadyToTrip is used.
 // Default ReadyToTrip returns true when the number of consecutive failures is more than 5.
 //
-// OnStateChange is called whenever the state of the CircuitBreaker changes.
+// OnStateChange is called whenever the state of the CircuitBreaker changes (updated to match ccb need).
 //
 // IsSuccessful is called with the error returned from a request.
 // If IsSuccessful returns true, the error is counted as a success.
 // Otherwise the error is counted as a failure.
 // If IsSuccessful is nil, default IsSuccessful is used, which returns false for all non-nil errors.
+//
+// OriginalOnStateChange is called whenever the state of the CircuitBreaker changes (original interface by the source).
 type Settings struct {
 	Name          string
 	MaxRequests   uint32
 	Interval      time.Duration
 	Timeout       time.Duration
 	ReadyToTrip   func(counts Counts) bool
-	OnStateChange func(name string, from State, to State)
+	OnStateChange func(name string, from State, to State, expiry time.Time)
 	IsSuccessful  func(err error) bool
+	//OriginalOnStateChange func(name string, from State, to State)
 }
 
 // CircuitBreaker is a state machine to prevent sending requests that are likely to fail.
@@ -123,7 +126,8 @@ type CircuitBreaker struct {
 	timeout       time.Duration
 	readyToTrip   func(counts Counts) bool
 	isSuccessful  func(err error) bool
-	onStateChange func(name string, from State, to State)
+	onStateChange func(name string, from State, to State, expiry time.Time)
+	//originalOnStateChange func(name string, from State, to State)
 
 	mutex      sync.Mutex
 	state      State
@@ -220,14 +224,6 @@ func (cb *CircuitBreaker) Counts() Counts {
 	defer cb.mutex.Unlock()
 
 	return cb.counts
-}
-
-// Expiry returns current expiry time
-func (cb *CircuitBreaker) Expiry() time.Time {
-	cb.mutex.Lock()
-	defer cb.mutex.Unlock()
-
-	return cb.expiry
 }
 
 // Execute runs the given request if the CircuitBreaker accepts it.
@@ -366,8 +362,11 @@ func (cb *CircuitBreaker) setState(state State, now time.Time) {
 	cb.toNewGeneration(now)
 
 	if cb.onStateChange != nil {
-		cb.onStateChange(cb.name, prev, state)
+		cb.onStateChange(cb.name, prev, state, cb.expiry)
 	}
+	//if cb.originalOnStateChange != nil {
+	//	cb.originalOnStateChange(cb.name, prev, state)
+	//}
 }
 
 func (cb *CircuitBreaker) toNewGeneration(now time.Time) {

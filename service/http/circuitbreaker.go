@@ -22,10 +22,8 @@ func (s HttpServer) getCircuitBreaker(name string) *circuitbreaker.CircuitBreake
 			return counts.Requests >= 3 && failureRatio >= 0.75
 		},
 		Timeout: time.Duration(60) * time.Second,
-		OnStateChange: func(name string, from circuitbreaker.State, to circuitbreaker.State) {
-			log.Printf("OnChangeState: %s, %v, %v\n", name, from, to)
-			// Get expiry time
-			expiry := cbs[name].Expiry().UnixMilli()
+		OnStateChange: func(name string, from circuitbreaker.State, to circuitbreaker.State, expiry time.Time) {
+			log.Printf("OnChangeState: %s, %v, %v, %v\n", name, from, to, expiry)
 			// Get affected endpoint (only broadcast new created rd endpoints)
 			endpoints, err := s.app.Repositories.RequiredService.GetEndpointsByRdService(name)
 			if err != nil {
@@ -40,7 +38,7 @@ func (s HttpServer) getCircuitBreaker(name string) *circuitbreaker.CircuitBreake
 			switch to {
 			case circuitbreaker.StateOpen:
 				for serviceAddr := range serviceDepMap {
-					err := internal.BroadcastOpenCircuits(serviceAddr, serviceDepMap[serviceAddr], endpointDepMap[serviceAddr], expiry)
+					err := internal.BroadcastOpenCircuits(serviceAddr, serviceDepMap[serviceAddr], endpointDepMap[serviceAddr], expiry.UnixMilli())
 					if err != nil {
 						log.Printf("OpenCircuits: error on BroadcastOpenCircuits to %s: %v\n", serviceAddr, err)
 					}
