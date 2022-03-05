@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"time"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -30,6 +31,12 @@ func (s *HttpServer) Register(sr grpc.ServiceRegistrar) {
 	pb.RegisterHttpServer(sr, s)
 }
 
+var (
+	rgServiceCache = make(map[string]time.Time)
+	rdServiceCache = make(map[string]time.Time)
+	cacheTtl       = time.Duration(60) * time.Second
+)
+
 func (s HttpServer) storeDependency(targetUrl string, initialHeader map[string]string) (*url.URL, bool) {
 	// Return parsed target endpoint to be reused
 	u, err := url.Parse(targetUrl)
@@ -43,8 +50,18 @@ func (s HttpServer) storeDependency(targetUrl string, initialHeader map[string]s
 		log.Println("Skip storing dependency")
 		return u, true
 	}
-	s.app.Repositories.RequiringService.Create(*rgServiceModel)
-	s.app.Repositories.RequiredService.Create(*rdServiceModel)
+
+	now := time.Now()
+	if expiry, ok := rgServiceCache[rgServiceModel.Sha256()]; !ok || expiry.Before(now) { // Not in cache or cache is expired
+		if err := s.app.Repositories.RequiringService.Create(*rgServiceModel); err == nil {
+			rgServiceCache[rgServiceModel.Sha256()] = now.Add(cacheTtl)
+		}
+	}
+	if expiry, ok := rdServiceCache[rdServiceModel.Sha256()]; !ok || expiry.Before(now) { // Not in cache or cache is expired
+		if err := s.app.Repositories.RequiredService.Create(*rdServiceModel); err == nil {
+			rdServiceCache[rdServiceModel.Sha256()] = now.Add(cacheTtl)
+		}
+	}
 	return u, true
 }
 
