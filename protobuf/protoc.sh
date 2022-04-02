@@ -9,3 +9,6 @@ protoc --go_out="$CURDIR" --go_opt=paths=source_relative \
     "$CURDIR/circuitbreaker.proto"
 
 find "$CURDIR" -name \*.pb.go -exec cp {} "$CURDIR/../examples/client/protobuf" \;
+
+# for python
+# python3 -m grpc_tools.protoc --proto_path=. --python_out=. --grpc_python_out=. circuitbreaker.proto
