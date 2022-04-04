@@ -2,6 +2,7 @@ package http
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"github.com/naufal-dean/ccb/lib/circuitbreaker"
@@ -24,6 +25,11 @@ func (s HttpServer) getCircuitBreaker(name string) *circuitbreaker.CircuitBreake
 		Timeout: time.Duration(60) * time.Second,
 		OnStateChange: func(name string, from circuitbreaker.State, to circuitbreaker.State, expiry time.Time) {
 			log.Printf("OnChangeState: %s, %v, %v, %v\n", name, from, to, expiry)
+			// Check if broadcast status activated or not
+			// NOTES: used for testing purpose
+			if value, ok := os.LookupEnv("CCB_NO_CASCADE"); ok && value == "1" {
+				return
+			}
 			// Get affected endpoint (only broadcast new created rd endpoints)
 			endpoints, err := s.app.Repositories.RequiredService.GetEndpointsByRdService(name)
 			if err != nil {
