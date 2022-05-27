@@ -33,6 +33,13 @@ func getEnvInt(key string, defaultValue int) int {
 }
 
 func main() {
+	//log.Println("hello")
+	//for ;; {
+	//	httpservice.Test()
+	//	time.Sleep(50 * time.Millisecond)
+	//}
+	//return
+
 	// TODO: load env file config if needed
 	port := flag.Int("port", getEnvInt("CCB_PORT", 50051), "The server port")
 	serviceName := flag.String("name", getEnv("CCB_SERVICE_NAME", "localhost:50051"), "This service name on Kube DNS")

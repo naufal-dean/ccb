@@ -95,11 +95,14 @@ func (s HttpServer) Request(ctx context.Context, input *pb.RequestInput) (*pb.Re
 func (s HttpServer) Get(ctx context.Context, input *pb.GetInput) (*pb.Response, error) {
 	log.Println("Received request: Get")
 
+	t1 := time.Now()
 	reqUrl, ok := s.storeDependency(input.Url, input.InitialHeader)
+	t2 := time.Now()
 	if ok && s.isCircuitOpen(http.MethodGet, reqUrl.Host, reqUrl.Path) {
 		return new(pb.Response), status.Error(codes.Aborted, "Request cancelled due to opened circuit")
 	}
 
+	t3 := time.Now()
 	res, err := s.doRequest(http.MethodGet, input.Url, nil, input.Header, &s.app.ServiceName, reqUrl)
 	if err != nil {
 		if errors.Is(err, circuitbreaker.ErrOpenState) {
@@ -109,7 +112,14 @@ func (s HttpServer) Get(ctx context.Context, input *pb.GetInput) (*pb.Response, 
 	}
 	defer res.Body.Close()
 
-	return convertResponse(res)
+	t4 := time.Now()
+	res2, err := convertResponse(res)
+	t5 := time.Now()
+
+	log.Printf("Time server: %d; %d; %d; %d\n", t2.Sub(t1).Microseconds(), t3.Sub(t2).Microseconds(),
+		t4.Sub(t3).Microseconds(), t5.Sub(t4).Microseconds())
+
+	return res2, err
 }
 
 func (s HttpServer) Post(ctx context.Context, input *pb.PostInput) (*pb.Response, error) {
