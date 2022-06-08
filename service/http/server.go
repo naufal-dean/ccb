@@ -37,7 +37,7 @@ var (
 	cacheTtl       = time.Duration(60) * time.Second
 )
 
-func (s HttpServer) storeDependency(targetUrl string, initialHeader map[string]string) (*url.URL, bool) {
+func (s HttpServer) storeDependency(targetUrl string, initialHeader map[string]string, endpointGroup string) (*url.URL, bool) {
 	// Return parsed target endpoint to be reused
 	u, err := url.Parse(targetUrl)
 	if err != nil {
@@ -45,6 +45,9 @@ func (s HttpServer) storeDependency(targetUrl string, initialHeader map[string]s
 		return nil, false
 	}
 
+	if endpointGroup != "" {
+		u.Path = endpointGroup
+	}
 	rgServiceModel, rdServiceModel, ok := buildDependency(u.Host, u.Path, initialHeader)
 	if !ok {
 		log.Println("Skip storing dependency")
@@ -75,7 +78,7 @@ func (s HttpServer) isCircuitOpen(method, service, endpoint string) bool {
 func (s HttpServer) Request(ctx context.Context, input *pb.RequestInput) (*pb.Response, error) {
 	log.Println("Received request: Request")
 
-	reqUrl, ok := s.storeDependency(input.Url, input.InitialHeader)
+	reqUrl, ok := s.storeDependency(input.Url, input.InitialHeader, input.EndpointGroup)
 	if ok && s.isCircuitOpen(input.Method, reqUrl.Host, reqUrl.Path) {
 		return new(pb.Response), status.Error(codes.Aborted, "Request cancelled due to opened circuit")
 	}
@@ -95,7 +98,7 @@ func (s HttpServer) Request(ctx context.Context, input *pb.RequestInput) (*pb.Re
 func (s HttpServer) Get(ctx context.Context, input *pb.GetInput) (*pb.Response, error) {
 	log.Println("Received request: Get")
 
-	reqUrl, ok := s.storeDependency(input.Url, input.InitialHeader)
+	reqUrl, ok := s.storeDependency(input.Url, input.InitialHeader, input.EndpointGroup)
 	if ok && s.isCircuitOpen(http.MethodGet, reqUrl.Host, reqUrl.Path) {
 		return new(pb.Response), status.Error(codes.Aborted, "Request cancelled due to opened circuit")
 	}
@@ -115,7 +118,7 @@ func (s HttpServer) Get(ctx context.Context, input *pb.GetInput) (*pb.Response, 
 func (s HttpServer) Post(ctx context.Context, input *pb.PostInput) (*pb.Response, error) {
 	log.Println("Received request: Post")
 
-	reqUrl, ok := s.storeDependency(input.Url, input.InitialHeader)
+	reqUrl, ok := s.storeDependency(input.Url, input.InitialHeader, input.EndpointGroup)
 	if ok && s.isCircuitOpen(http.MethodPost, reqUrl.Host, reqUrl.Path) {
 		return new(pb.Response), status.Error(codes.Aborted, "Request cancelled due to opened circuit")
 	}
@@ -135,7 +138,7 @@ func (s HttpServer) Post(ctx context.Context, input *pb.PostInput) (*pb.Response
 func (s HttpServer) Put(ctx context.Context, input *pb.PutInput) (*pb.Response, error) {
 	log.Println("Received request: Put")
 
-	reqUrl, ok := s.storeDependency(input.Url, input.InitialHeader)
+	reqUrl, ok := s.storeDependency(input.Url, input.InitialHeader, input.EndpointGroup)
 	if ok && s.isCircuitOpen(http.MethodPut, reqUrl.Host, reqUrl.Path) {
 		return new(pb.Response), status.Error(codes.Aborted, "Request cancelled due to opened circuit")
 	}
@@ -155,7 +158,7 @@ func (s HttpServer) Put(ctx context.Context, input *pb.PutInput) (*pb.Response, 
 func (s HttpServer) Delete(ctx context.Context, input *pb.DeleteInput) (*pb.Response, error) {
 	log.Println("Received request: Delete")
 
-	reqUrl, ok := s.storeDependency(input.Url, input.InitialHeader)
+	reqUrl, ok := s.storeDependency(input.Url, input.InitialHeader, input.EndpointGroup)
 	if ok && s.isCircuitOpen(http.MethodDelete, reqUrl.Host, reqUrl.Path) {
 		return new(pb.Response), status.Error(codes.Aborted, "Request cancelled due to opened circuit")
 	}

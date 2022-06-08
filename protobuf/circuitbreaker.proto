@@ -12,12 +12,14 @@ message RequestInput {
     map<string, string> header = 3;
     bytes body = 4;
     map<string, string> initial_header = 5;
+    string endpoint_group = 6;
 }
 
 message GetInput {
     string url = 1;
     map<string, string> header = 2;
     map<string, string> initial_header = 3;
+    string endpoint_group = 4;
 }
 
 message PostInput {
@@ -25,6 +27,7 @@ message PostInput {
     map<string, string> header = 2;
     bytes body = 3;
     map<string, string> initial_header = 4;
+    string endpoint_group = 5;
 }
 
 message PutInput {
@@ -32,12 +35,14 @@ message PutInput {
     map<string, string> header = 2;
     bytes body = 3;
     map<string, string> initial_header = 4;
+    string endpoint_group = 5;
 }
 
 message DeleteInput {
     string url = 1;
     map<string, string> header = 2;
     map<string, string> initial_header = 3;
+    string endpoint_group = 4;
 }
 
 message Response {
