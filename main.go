@@ -33,7 +33,6 @@ func getEnvInt(key string, defaultValue int) int {
 }
 
 func main() {
-	// TODO: load env file config if needed
 	port := flag.Int("port", getEnvInt("CCB_PORT", 50051), "The server port")
 	serviceName := flag.String("name", getEnv("CCB_SERVICE_NAME", "localhost:50051"), "This service name on Kube DNS")
 	dbPath := flag.String("dbpath", getEnv("CCB_DB_PATH", ""), "The server sqlite3 db path")
@@ -42,17 +41,6 @@ func main() {
 	addr := fmt.Sprintf(":%d", *port)
 
 	application := app.New(*serviceName, *dbPath)
-
-	// TEST
-	// TODO: remove
-	//application.Repositories.Status.Create(status.Status{
-	//	Service:  "test-euy",
-	//	Endpoint: "/123",
-	//	Status:   "CLOSED",
-	//})
-	//depMap := application.Repositories.RequiringService.GetDependencyMapByEndpoints([]string{"/endpoint-aa", "/endpoint-d"})
-	//log.Print(depMap)
-	// TEST END
 
 	server.Run(addr, func(grpcServer *grpc.Server) {
 		// Register service Http

@@ -168,7 +168,6 @@ func (sr Sqlite3Repository) DeleteWhereRdServicesAndRdEndpointsInSlice(rdService
 		var temp int
 		err := checkStmt.QueryRow(rdService, rdEndpoint).Scan(&temp)
 		if err != nil {
-			// TODO: maybe check the error type, assert that it is ErrNoRows
 			log.Printf("Endpoint %s not updated\n", rdEndpoint) // Debug
 			continue
 		}
@@ -319,7 +318,6 @@ func (sr Sqlite3Repository) oldDeleteWhereOneRdServiceAndManyRdEndpointsEqual2(r
 		var temp int
 		err := checkStmt.QueryRow(rdService, rdEndpoint).Scan(&temp)
 		if err != nil {
-			// TODO: maybe check the error type, assert that it is ErrNoRows
 			log.Printf("Endpoint %s not updated\n", rdEndpoint) // Debug
 			continue
 		}

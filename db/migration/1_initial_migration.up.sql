@@ -6,7 +6,6 @@ CREATE TABLE status (
     PRIMARY KEY (rd_service, rd_endpoint)
 );
 
--- TODO: Check if primary key order affect performance
 CREATE TABLE requiring_service (
    rg_service TEXT NOT NULL,
    service TEXT NOT NULL,
@@ -14,7 +13,6 @@ CREATE TABLE requiring_service (
    PRIMARY KEY (rg_service, service, endpoint)
 );
 
--- TODO: Check if primary key order affect performance
 CREATE TABLE required_service (
   endpoint TEXT NOT NULL,
   rd_service TEXT NOT NULL,
